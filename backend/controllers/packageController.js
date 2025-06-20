@@ -25,7 +25,11 @@ export const createPackage = asyncHandler(async (req, res) => {
 // @route   GET /api/packages
 // @access  Public
 export const getPackages = asyncHandler(async (req, res) => {
-  const pkgs = await Package.find().sort({ createdAt: -1 });
+
+  const userId = req.user._id;
+
+  // Only fetch packages created by this user
+  const pkgs = await Package.find({ createdBy: userId }).sort({ updatedAt: -1 }).lean();
   res.json(pkgs);
 });
 

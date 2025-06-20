@@ -13,7 +13,7 @@ const router = express.Router();
 
 router
   .route('/')
-  .get(getPackages)
+  .get(protect, getPackages)
   .post(protect, createPackage);
 
 router

@@ -35,6 +35,9 @@ const staySchema = new mongoose.Schema({
 });
 
 const packageSchema = new mongoose.Schema({
+  status:         { type: String, enum: ['active', 'inactive'], default: 'active' },
+  bookings:       { type: Number, default: 0 },
+  rating:         { type: Number, default: 0 },
   name:           { type: String, required: true },
   description:    { type: String, required: true },
   location:       { type: String, required: true },
