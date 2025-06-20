@@ -14,3 +14,10 @@ api.interceptors.request.use(config => {
 });
 
 export default api;
+
+// Update user profile
+export const updateProfile = (data) => api.put('/api/auth/profile', data);
+// Change user password
+export const changePassword = (data) => api.put('/api/auth/password', data);
+// Get current user profile
+export const getProfile = () => api.get('/api/auth/profile');

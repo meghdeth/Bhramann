@@ -11,10 +11,13 @@ function AuthLayout({
   overlayText 
 }) {
   return (
-    <div className="min-h-screen w-full md:flex flex-row">
+    <div className="relative min-h-screen w-full md:flex flex-row">
+      <Link to={"/"} className='absolute top-5 left-15 z-15 text-black md:!text-white text-3xl'>
+        Bhramann
+      </Link>
       {/* Left Side - Image */}
       <div 
-        className="hidden md:block md:w-1/2 md:h-screen bg-cover bg-center relative w-full h-[30vh] !mt-20"
+        className="hidden md:block md:w-1/2 md:h-screen bg-cover bg-center relative w-full h-[30vh]"
         style={{ 
           backgroundImage: 'url(https://images.unsplash.com/photo-1596394516093-501ba68a0ba6)',
         }}

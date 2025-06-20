@@ -11,6 +11,7 @@ export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     email: '',
     password: '',
     agreeToTerms: true,
@@ -29,6 +30,7 @@ export default function Signup() {
     try {
       const { data } = await api.post('/api/auth/signup', {
         name: formData.name,
+        phone: formData.phone,
         email: formData.email,
         password: formData.password,
       });
@@ -72,6 +74,28 @@ export default function Signup() {
             placeholder="Enter your full name"
             required
           />
+        </div>
+
+        <div className="!mt-5">
+          <label className="block text-[1.4rem] font-medium text-gray-700 !mb-2">
+            Phone Number
+          </label>
+          <div className="relative">
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                if (value.length <= 10) {
+                  setFormData({ ...formData, phone: value });
+                }
+              }}
+              className="w-full pl-16 !p-4 text-[1.6rem] bg-white rounded-xl border-2 border-gray-100 focus:border-gray-300"
+              placeholder="XXXXXXXXXX"
+              maxLength={10}
+              required
+            />
+          </div>
         </div>
 
         {/* Email Input */}
@@ -137,11 +161,11 @@ export default function Signup() {
             className="ml-3 text-[1.4rem] text-gray-700"
           >
             I agree to the{' '}
-            <a href="/terms" className="text-[#0297CF] underline">
+            <a href="/terms" className="!text-blue-500 !underline">
               Terms and Conditions
             </a>{' '}
             and{' '}
-            <a href="/privacy" className="text-[#0297CF] underline">
+            <a href="/privacy" className="!text-blue-500 !underline">
               Privacy Policy
             </a>
           </label>
@@ -151,7 +175,7 @@ export default function Signup() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-[#0297CF] text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'
+          className={`w-full bg-[#0297CF] !text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'
             }`}
         >
           {loading ? 'Creating…' : 'Create Account'}
@@ -167,7 +191,7 @@ export default function Signup() {
         </div>
 
         {/* Social Buttons (no change) */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid w-full">
           <button
             type="button"
             className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl border-2 border-gray-100 hover:bg-gray-200 transition-colors duration-300"
@@ -179,19 +203,6 @@ export default function Signup() {
             />
             <span className="text-[1.4rem] font-medium text-gray-700">
               Google
-            </span>
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl border-2 border-gray-100 hover:bg-gray-200 transition-colors duration-300"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-              alt="Facebook"
-              className="size-5"
-            />
-            <span className="text-[1.4rem] font-medium text-gray-700">
-              Facebook
             </span>
           </button>
         </div>

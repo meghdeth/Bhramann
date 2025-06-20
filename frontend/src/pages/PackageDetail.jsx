@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ChevronRight,
@@ -20,134 +20,28 @@ import {
   X,
   Upload
 } from 'lucide-react';
+import api from '../api';
 
 function PackageDetail() {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState('photos');
   const [travelers, setTravelers] = useState(1);
+  const [packageDetails, setPackageDetails] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const [packageDetails, setPackageDetails] = useState({
-    name: 'Eastern Delight',
-    description: 'Experience the beauty of Eastern India with this carefully curated tour package covering the best of Sikkim and Darjeeling.',
-    location: 'Sikkim & Darjeeling, India',
-    priceType: 'variable',
-    priceRanges: [
-      { from: 1, to: 2, price: 16800 },
-      { from: 3, to: 5, price: 15500 },
-      { from: 6, to: 10, price: 14800 }
-    ],
-    dateType: 'range',
-    availableDates: {
-      start: '2024-04-01',
-      end: '2024-09-30'
-    },
-    specificDates: ['2024-04-15', '2024-05-01', '2024-05-15'],
-    quantity: '20',
-    mainPhotos: [
-      'https://images.unsplash.com/photo-1544735716-392fe2489ffa',
-      'https://images.unsplash.com/photo-1501393091915-82f0cbd8f338',
-      'https://images.unsplash.com/photo-1532423622396-10a3f979251a',
-      'https://images.unsplash.com/photo-1516496636080-14fb876e029d'
-    ],
-    itinerary: [
-      {
-        id: 1,
-        title: 'Arrival in Gangtok',
-        activities: [
-          'Airport/Railway Station Pickup',
-          'Hotel Check-in',
-          'Welcome Dinner',
-          'Evening Market Visit'
-        ]
-      },
-      {
-        id: 2,
-        title: 'Gangtok Sightseeing',
-        activities: [
-          'Breakfast at Hotel',
-          'Visit to Tsomgo Lake',
-          'Baba Mandir Visit',
-          'Local Market Tour',
-          'Dinner at Hotel'
-        ]
-      }
-    ],
-    inclusions: [
-      {
-        id: 1,
-        title: 'Accommodation',
-        details: [
-          '4-star hotel accommodation',
-          'Daily breakfast and dinner',
-          'Welcome drink on arrival'
-        ]
-      },
-      {
-        id: 2,
-        title: 'Transportation',
-        details: [
-          'Airport/Railway station transfers',
-          'All sightseeing transfers',
-          'Luxury vehicle with driver'
-        ]
-      },
-      {
-        id: 3,
-        title: 'Activities',
-        details: [
-          'All sightseeing as per itinerary',
-          'Professional guide services',
-          'Monument entrance fees'
-        ]
-      }
-    ],
-    highlights: [
-      {
-        id: 1,
-        title: 'Natural Wonders',
-        image: 'https://images.unsplash.com/photo-1516496636080-14fb876e029d',
-      },
-      {
-        id: 2,
-        title: 'Cultural Experiences',
-        image: 'https://images.unsplash.com/photo-1516496636080-14fb876e029d',
-      }
-    ],
-    stays: [
-      {
-        id: 1,
-        hotel: 'Mayfair Gangtok',
-        roomType: 'Deluxe Room',
-        amenities: [
-          'Free Wi-Fi',
-          'Mountain View',
-          'Room Service',
-          'Spa Access'
-        ],
-        images: [
-          'https://images.unsplash.com/photo-1566665797739-1674de7a421a',
-          'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b'
-        ],
-        description: 'Luxury 5-star property with stunning mountain views'
-      },
-      {
-        id: 2,
-        hotel: 'Summit Norling Resort',
-        roomType: 'Premium Suite',
-        amenities: [
-          'Private Balcony',
-          'Mini Bar',
-          'Restaurant Access',
-          'Fitness Center'
-        ],
-        images: [
-          'https://images.unsplash.com/photo-1566073771259-6a8506099945',
-          'https://images.unsplash.com/photo-1582719508461-905c673771fd'
-        ],
-        description: 'Boutique resort nestled in the Himalayas'
-      }
-    ]
-  });
+  useEffect(() => {
+    setLoading(true);
+    api.get(`/api/packages/${id}`)
+      .then(({ data }) => {
+        setPackageDetails(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to load package details');
+        setLoading(false);
+      });
+  }, [id]);
 
   const tabs = [
     { id: 'photos', label: 'Photos' },
@@ -164,12 +58,13 @@ function PackageDetail() {
   };
 
   const getApplicablePrice = () => {
+    if (!packageDetails || !packageDetails.priceRanges) return 0;
     for (const range of packageDetails.priceRanges) {
       if (travelers >= range.from && travelers <= range.to) {
         return range.price;
       }
     }
-    return packageDetails.priceRanges[packageDetails.priceRanges.length - 1].price;
+    return packageDetails.priceRanges?.[packageDetails.priceRanges.length - 1]?.price || 0;
   };
 
   const handleIncrease = () => setTravelers((prev) => prev + 1);
@@ -179,6 +74,10 @@ function PackageDetail() {
 
   const applicablePrice = getApplicablePrice();
   const totalPrice = travelers * applicablePrice;
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+  if (!packageDetails) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 mt-35">
@@ -192,7 +91,7 @@ function PackageDetail() {
               Tour Packages
             </Link>
             <ChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-600">{packageDetails.name}</span>
+            <span className="text-gray-600">{packageDetails?.name}</span>
           </div>
         </div>
       </div>
@@ -203,16 +102,16 @@ function PackageDetail() {
           <div className="flex justify-between gap-8 flex-col md:flex-row">
             <div>
               <h1 className="text-4xl font-bold text-gray-800 mb-4">
-                {packageDetails.name}
+                {packageDetails?.name}
               </h1>
               <div className="flex items-center gap-4 text-sm flex-wrap">
                 <div className="flex items-center gap-2">
                   <MapPin className="size-6 text-gray-400" />
-                  <span className="text-gray-600 text-xl">{packageDetails.location}</span>
+                  <span className="text-gray-600 text-xl">{packageDetails?.location}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Users className="size-6 text-gray-400" />
-                  <span className="text-gray-600 text-xl">Available: {packageDetails.quantity} spots</span>
+                  <span className="text-gray-600 text-xl">Available: {packageDetails?.quantity} spots</span>
                 </div>
               </div>
             </div>
@@ -257,7 +156,7 @@ function PackageDetail() {
 
           <div className="mt-8">
             <div className="grid grid-cols-1 sm:grid-col-2 md:grid-cols-3 gap-4">
-              {packageDetails.priceRanges.map((range, index) => (
+              {packageDetails?.priceRanges.map((range, index) => (
                 <div
                   key={index}
                   className={`flex items-center justify-between p-4 border rounded-lg ${
@@ -306,7 +205,7 @@ function PackageDetail() {
           <div className="flex-[2] space-y-8">
             {activeTab === 'photos' && (
               <div className="grid grid-cols-2 gap-4">
-                {packageDetails.mainPhotos.map((photo, index) => (
+                {packageDetails?.mainPhotos.map((photo, index) => (
                   <img
                     key={index}
                     src={photo}
@@ -319,7 +218,7 @@ function PackageDetail() {
 
             {activeTab === 'highlights' && (
               <div className="space-y-6">
-                {packageDetails.highlights.map((highlight) => (
+                {packageDetails?.highlights.map((highlight) => (
                   <div key={highlight.id} className="bg-white rounded-2xl p-8 shadow-sm">
                     <h3 className="text-2xl font-semibold mb-6">{highlight.title}</h3>
                     <div>
@@ -332,7 +231,7 @@ function PackageDetail() {
 
             {activeTab === 'itinerary' && (
               <div className="space-y-6">
-                {packageDetails.itinerary.map((day) => (
+                {packageDetails?.itinerary.map((day) => (
                   <div key={day.id} className="bg-white rounded-2xl p-8 shadow-sm">
                     <div className="flex items-start gap-6">
                       <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -357,7 +256,7 @@ function PackageDetail() {
 
             {activeTab === 'inclusions' && (
               <div className="space-y-6">
-                {packageDetails.inclusions.map((inclusion) => (
+                {packageDetails?.inclusions.map((inclusion) => (
                   <div key={inclusion.id} className="bg-white rounded-2xl p-8 shadow-sm">
                     <h3 className="text-2xl font-semibold mb-6">{inclusion.title}</h3>
                     <div className="grid gap-4">
@@ -375,7 +274,7 @@ function PackageDetail() {
 
             {activeTab === 'hotels' && (
               <div className="space-y-8">
-                {packageDetails.stays.map((stay) => (
+                {packageDetails?.stays.map((stay) => (
                   <div key={stay.id} className="bg-white rounded-2xl p-8 shadow-sm">
                     <h3 className="text-2xl font-semibold mb-4">{stay.hotel}</h3>
                     <p className="text-gray-600 mb-6">{stay.description}</p>

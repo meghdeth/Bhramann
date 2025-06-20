@@ -2,8 +2,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import { FiEdit, FiFile, FiX } from "react-icons/fi";
-import { Clock, DollarSign, MapPin, Star, Users, X } from "lucide-react";
+import { Clock, IndianRupee, MapPin, Star, Users, X } from "lucide-react";
 
 const Container = styled.div`
   display: flex;
@@ -272,7 +271,7 @@ function MyPackages() {
                       <span>{pkg.bookings} bookings</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <DollarSign className="size-5" />
+                      <IndianRupee className="size-5" />
                       <span>
                         {pkg.priceType === 'fixed'
                           ? `${pkg.price} per person`

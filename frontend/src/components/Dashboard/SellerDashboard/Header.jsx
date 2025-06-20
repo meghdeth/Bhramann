@@ -1,79 +1,45 @@
-import styled from "styled-components";
-import { FiBell, FiMessageSquare, FiUser } from "react-icons/fi";
+import React from 'react';
+import { Bell, MessageSquare, User, ChevronDown, Menu, User2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const HeaderContainer = styled.header`
-  width: 100%;
-  height: 60px;
-  background-color: transparent;
-  border-bottom: 1px solid #00000080;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  font-size: 3rem;
-  font-weight: 600;
-  letter-spacing: 2px;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-    padding: 0 10px;
-    height: 50px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
-    background-color: #ffffff;
-    padding-top: 0.5rem;
-  }
-`;
-
-const LeftSection = styled.div`
-  color: black;
-
-  @media (max-width: 768px) {
-    font-size: 1.8rem;
-    letter-spacing: 1px;
-    margin-left: 5rem;
-  }
-`;
-
-const RightSection = styled.div`
-  display: flex;
-  gap: 3.5rem;
-  align-items: center;
-
-  @media (max-width: 768px) {
-    gap: 2rem;
-  }
-`;
-
-const Icon = styled.div`
-  font-size: 3rem;
-  color: black;
-  cursor: pointer;
-
-  @media (max-width: 768px) {
-    font-size: 2rem;
-  }
-`;
-
-function Header() {
+export default function Header({onClose}) {
   return (
-    <HeaderContainer>
-      <LeftSection>DASHBOARD</LeftSection>
-      <RightSection>
-        <Icon>
-          <FiBell />
-        </Icon>
-        <Icon>
-          <FiMessageSquare />
-        </Icon>
-        <Icon>
-          <FiUser />
-        </Icon>
-      </RightSection>
-    </HeaderContainer>
+    <header className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        <div className='flex items-center gap-5'>
+        <div className='block md:hidden cursor-pointer' onClick={onClose}>
+          <Menu/>
+        </div>
+        {/* Logo and Title */}
+        <div className="flex items-center space-x-4 z-[999]">
+          <div className="flex items-center space-x-3">
+            <div>
+              <a href='/' className="text-4xl font-semibold text-slate-800 tracking-tight">Bhramann</a>
+              <p className="text-2xl text-slate-500 font-medium">Seller Dashboard</p>
+            </div>
+          </div>
+        </div>
+</div>
+
+        {/* Right Actions */}
+        <div className="flex items-center space-x-4">
+          {/* Notifications */}
+          <button className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+            <Bell className="size-8" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
+              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+            </span>
+          </button>
+
+          {/* Messages */}
+          <button className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+            <MessageSquare className="size-8" />
+          </button>
+          <Link to={"seller-settings"} className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+            <User2 className="size-8" />
+          </Link>
+        </div>
+      </div>
+    </header>
   );
 }
-
-export default Header;

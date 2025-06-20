@@ -1,67 +1,100 @@
-import { CreditCardIcon, MoreVertical, Package, TrendingUp, Users } from "lucide-react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { CreditCardIcon, Package, TrendingUp, Users } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
+import api from '../../../api';  // your axios setup
 
-function SellerHome() {
-  const stats = [
-    {
-      title: "Today's Sales",
-      value: "$5,000",
-      icon: CreditCardIcon,
-      color: "from-blue-500 to-blue-600"
-    },
-    {
-      title: "Active Packages",
-      value: "25",
-      icon: Package,
-      color: "from-emerald-500 to-emerald-600"
-    },
-    {
-      title: "Monthly Revenue",
-      value: "$42,000",
-      icon: TrendingUp,
-      color: "from-violet-500 to-violet-600"
-    },
-    {
-      title: "Total Customers",
-      value: "1,240",
-      icon: Users,
-      color: "from-amber-500 to-amber-600"
-    }
-  ];
+// Optional: Add styled-components here if needed
 
-  const topPackages = [
-    {
-      id: 1,
-      name: "Kullu - Manali - Rohtang Package",
-      duration: "5 Nights - 4 Days",
-      price: 1200,
-      sold: 50,
-      status: "In Stock",
-      image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21"
-    },
-    {
-      id: 2,
-      name: "Shimla - Kufri Package",
-      duration: "3 Nights - 2 Days",
-      price: 800,
-      sold: 30,
-      status: "Out of Stock",
-      image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8"
-    },
-  ];
+export default function SellerHome() {
+  const navigate = useNavigate();
 
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
 
-  const handleAction = (id, action) =>{
-    alert(`${action} is clicked`);
-}
+  // Fetch packages from API on mount
+  useEffect(() => {
+    api.get("/api/packages")
+      .then((res) => {
+        setPackages(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to load packages", err);
+        setError("Failed to load packages.");
+        setLoading(false);
+      });
+  }, []);
+
+  const handleAction = (pkgId, action) => {
+    setActiveDropdown(null);
+
+    if (action === "view") {
+      navigate(`/tour-package/${pkgId}`);
+    } else if (action === "edit") {
+      navigate(`/seller-dashboard/packages/modify-package/${pkgId}`);
+    } else if (action === "delete") {
+      if (!window.confirm("Are you sure you want to delete this package?")) return;
+      api.delete(`/api/packages/${pkgId}`)
+        .then(() => {
+          setPackages(pkgs => pkgs.filter(p => p._id !== pkgId)); // Remove from UI
+        })
+        .catch(err => {
+          console.error("Delete failed:", err);
+          alert("Delete failed.");
+        });
+    }
+  };
+
+  useEffect(() => {
+    const close = () => setActiveDropdown(null);
+    window.addEventListener("click", close);
+    return () => window.removeEventListener("click", close);
+  }, []);
+
+  // Compute stats
+  const todaysSales = packages.reduce((sum, pkg) => {
+    const bookings = Number(pkg.bookings) || 0;
+    const price = Number(pkg.priceRanges?.[0]?.price) || 0;
+    return sum + (bookings * price);
+  }, 0);
+
+  const activePackages = packages.filter(p => p.status === "active").length;
+  const monthlyRevenue = todaysSales; // You can update this logic if needed
+  const totalBookings = packages.reduce((sum, pkg) => {
+    const bookings = Number(pkg.bookings) || 0;
+    return sum + bookings;
+  }, 0);
+
+  const stats = [
+    { title: "Today's Sales", value: todaysSales.toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2
+    }), icon: CreditCardIcon, color: "from-blue-500 to-blue-600" },
+    { title: "Active Packages", value: activePackages, icon: Package, color: "from-emerald-500 to-emerald-600" },
+    { title: "Monthly Revenue", value: monthlyRevenue.toLocaleString('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 2
+    }), icon: TrendingUp, color: "from-violet-500 to-violet-600" },
+    { title: "Total Bookings", value: totalBookings, icon: Users, color: "from-amber-500 to-amber-600" }
+  ];
+
+  const topPackages = [...packages].sort((a, b) => b.bookings - a.bookings).slice(0, 3);
+
+  if (loading) return <p className="p-6">Loading dashboard…</p>;
+  if (error) return <p className="p-6 text-red-500">{error}</p>;
+
   return (
     <div className="w-full p-5">
+      {/* Stats */}
       <div className="grid md:grid-cols-4 gap-6 mb-12 grid-cols-1">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="rounded-lg shadow-md flex flex-col p-8">
+        {stats.map((stat, idx) => (
+          <div key={idx} className="rounded-lg shadow-md flex flex-col p-8">
             <div className="flex items-center gap-4">
               <div className={`bg-gradient-to-r ${stat.color} p-4 rounded-2xl shadow-md text-white mr-2`}>
                 <stat.icon className="size-8" />
@@ -75,15 +108,13 @@ function SellerHome() {
         ))}
       </div>
 
-
+      {/* Top Selling Packages */}
       <div className="bg-white rounded-2xl p-8 shadow-md mb-8 mt-15">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Top Selling Packages
-          </h2>
-          <button className="text-blue-500 hover:text-blue-600 transition-colors duration-300">
+          <h2 className="text-2xl font-bold text-gray-800">Top Selling Packages</h2>
+          <Link to="/seller-dashboard/packages" className="text-blue-500 hover:text-blue-600">
             View All
-          </button>
+          </Link>
         </div>
 
         <div className="overflow-x-auto">
@@ -100,79 +131,56 @@ function SellerHome() {
             <tbody>
               {topPackages.map((pkg) => (
                 <tr
-                  key={pkg.id}
-                  className="border-b border-gray-100 transition-colors duration-300"
+                  key={pkg._id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDropdownPosition({ x: e.clientX, y: e.clientY });
+                    setActiveDropdown(activeDropdown === pkg._id ? null : pkg._id);
+                  }}
+                  className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors duration-300"
                 >
                   <td className="p-4">
                     <div className="flex items-center gap-4">
-                      <img
-                        src={pkg.image}
-                        alt={pkg.name}
-                        className="size-12 rounded-lg object-cover"
-                      />
+                      <img src={pkg.mainPhotos?.[0]} alt={pkg.name} className="size-12 rounded-lg object-cover" />
                       <div>
                         <h4 className="font-medium text-gray-800">{pkg.name}</h4>
-                        <p className="text-lg text-gray-500">{pkg.duration}</p>
+                        <p className="text-lg text-gray-500">{pkg.itinerary.length} Days</p>
                       </div>
                     </div>
                   </td>
-
-                  {/* Hide these on mobile, show on desktop */}
+                  <td className="hidden md:table-cell p-4 text-gray-800">₹{pkg.priceRanges?.[0]?.price.toLocaleString()}</td>
+                  <td className="hidden md:table-cell p-4 text-gray-800">{pkg.bookings} units</td>
                   <td className="hidden md:table-cell p-4">
-                    <span className="font-medium text-gray-800">${pkg.price}</span>
+                    <span className={`px-3 py-1 rounded-full text-lg font-medium ${
+                      pkg.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                    }`}>{pkg.status}</span>
                   </td>
-                  <td className="hidden md:table-cell p-4">
-                    <span className="font-medium text-gray-800">{pkg.sold} units</span>
-                  </td>
-                  <td className="hidden md:table-cell p-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-lg font-medium ${pkg.status === "In Stock"
-                          ? "bg-emerald-100 text-emerald-700"
-                          : "bg-red-100 text-red-700"
-                        }`}
-                    >
-                      {pkg.status}
-                    </span>
-                  </td>
-                  <td className="table-cell p-4">
-                    <div className="relative">
-                      <button onClick={() => setActiveDropdown(activeDropdown === pkg.id ? null : pkg.id)}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors duration-300">
-                        <MoreVertical className="w-5 h-5 text-gray-500" />
-                      </button>
-                  {activeDropdown === pkg.id && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 z-10">
-                        <button
-                          onClick={() => handleAction(pkg.id, 'view')}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          View Details
-                        </button>
-                        <button
-                          onClick={() => handleAction(pkg.id, 'edit')}
-                          className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleAction(pkg.id, 'delete')}
-                          className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                    </div>
-                  </td>
+                  <td className="table-cell p-4 text-gray-400 text-sm">Click row for actions</td>
                 </tr>
               ))}
             </tbody>
-
           </table>
         </div>
       </div>
+
+      {/* Dropdown Actions */}
+      {activeDropdown && (
+        <div
+          className="fixed bg-white rounded-xl shadow-lg py-2 z-50 w-48"
+          style={{ top: dropdownPosition.y, left: dropdownPosition.x }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button onClick={() => handleAction(activeDropdown, "view")} className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+            View Details
+          </button>
+          <button onClick={() => handleAction(activeDropdown, "edit")} className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+            Edit
+          </button>
+          <button onClick={() => handleAction(activeDropdown, "delete")} className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-
-export default SellerHome;

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 import {
   Clock,
-  DollarSign,
+  IndianRupee,
   MapPin,
   Star,
   Users,
@@ -71,7 +71,11 @@ export default function MyPackages() {
       })
       .catch((err) => {
         console.error("Failed to load packages:", err);
-        setError("Could not load packages.");
+        if (err.response?.status === 401) {
+          setError("Please log in to view your packages.");
+        } else {
+          setError("Could not load packages. Please try again later.");
+        }
         setLoading(false);
       });
   }, []);
@@ -89,7 +93,8 @@ export default function MyPackages() {
       })
       .catch(err => {
         console.error("Delete failed:", err);
-        alert("Failed to delete package.");
+        const errorMessage = err.response?.data?.message || "Failed to delete package. Please try again.";
+        alert(errorMessage);
       });
   };
 
@@ -142,11 +147,11 @@ export default function MyPackages() {
                       <span>{pkg.bookings} bookings</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <DollarSign className="size-5" />
+                      <IndianRupee className="size-5" />
                       <span>
                         {pkg.priceType === "fixed"
-                          ? `₹${pkg.priceRanges[0].price} per person`
-                          : `₹${pkg.priceRanges[0].price} per person (${pkg.priceRanges[0].from}-${pkg.priceRanges[0].to})`}
+                          ? `${pkg.priceRanges[0].price} per person`
+                          : `${pkg.priceRanges[0].price} per person (${pkg.priceRanges[0].from}-${pkg.priceRanges[0].to})`}
                       </span>
                     </div>
                   </div>
@@ -163,14 +168,14 @@ export default function MyPackages() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => handleViewDetails(pkg)}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white py-2.5 rounded-xl font-medium hover:bg-blue-600 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 bg-blue-500 !text-white py-2.5 rounded-xl font-medium hover:bg-blue-600 transition-all duration-300"
                   >
                     View Details
                   </button>
 
                   <Link
                     to={`/seller-dashboard/packages/modify-package/${pkg._id}`}
-                    className="w-full flex items-center justify-center gap-2 border border-blue-500 text-blue-500 py-2.5 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300"
+                    className="w-full flex items-center justify-center gap-2 border border-blue-500 hover:!text-blue-500 py-2.5 rounded-xl font-medium hover:bg-blue-50 transition-all duration-300"
                   >
                     Edit Package
                   </Link>
@@ -178,7 +183,7 @@ export default function MyPackages() {
 
                 <button
                   onClick={() => handleDelete(pkg._id)}
-                  className="w-full flex items-center justify-center gap-2 border border-red-500 text-red-500 py-2.5 rounded-xl font-medium hover:bg-red-50 transition-all duration-300"
+                  className="w-full flex items-center justify-center gap-2 border border-red-500 hover:!text-red-500 py-2.5 rounded-xl font-medium hover:bg-red-50 transition-all duration-300"
                 >
                   Delete Package
                 </button>
@@ -208,13 +213,13 @@ export default function MyPackages() {
                   {selectedPackage.name}
                 </h2>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  className={`px-3 py-1 rounded-full text-xl font-medium ${
                     selectedPackage.status === "active"
                       ? "bg-emerald-100 text-emerald-700"
                       : "bg-amber-100 text-amber-700"
                   }`}
                 >
-                  {selectedPackage.status === "active" ? "Active" : "Pending"}
+                  {selectedPackage.status === "active" ? "Approved" : "Pending Approval"}
                 </span>
               </div>
               <p className="text-gray-600">
@@ -229,7 +234,7 @@ export default function MyPackages() {
 
               <Section title="Highlights" icon={<MapPin />}>
                 {selectedPackage.highlights.map((h, i) => (
-                  <li key={i}>{h}</li>
+                  <li key={i}>{h.title}</li>
                 ))}
               </Section>
 

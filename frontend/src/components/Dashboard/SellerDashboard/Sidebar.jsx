@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
 import { NavLink } from "react-router-dom";
-import { DollarSign, Home, Package, ShoppingCart, X } from "lucide-react";
+import { Calendar, CreditCard, Home, Package, Settings, X } from "lucide-react";
 
 const SidebarContainer = styled.nav`
   width: 250px;
@@ -41,7 +41,7 @@ const SidebarLink = styled(NavLink)`
   gap: 10px;
   padding: 10px;
   border-radius: 8px;
-  font-size: 2rem;
+  font-size: 1.8rem;
   text-decoration: none;
   color: #333;
   transition: background-color 0.3s, color 0.3s;
@@ -110,12 +110,17 @@ const links = [
   {
     path: "/seller-dashboard/orders",
     label: "Bookings",
-    icon: ShoppingCart,
+    icon: Calendar,
   },
   {
     path: "/seller-dashboard/payments",
     label: "Payments",
-    icon: DollarSign,
+    icon: CreditCard,
+  },
+  {
+    path: "/seller-dashboard/seller-settings",
+    label: "Settings",
+    icon: Settings,
   }
 ]
 function Sidebar({ onClose }) {
@@ -127,7 +132,7 @@ function Sidebar({ onClose }) {
           return (
             <SidebarLink key={index} to={link.path} onClick={onClose} {...(link.path === "/seller-dashboard" ? { end: true } : {})}>
               <Icon>
-                <link.icon />
+                <link.icon className="size-8"/>
               </Icon>
               {link.label}
             </SidebarLink>

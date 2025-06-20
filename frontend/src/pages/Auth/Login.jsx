@@ -95,7 +95,7 @@ export default function Login() {
             </button>
           </div>
           <div className="flex justify-end !mt-5 !mb-5">
-            <button type="button" className="text-[1.4rem]">
+            <button type="button" className="text-[1.4rem] !text-blue-500 hover:!underline">
               Forgot Password?
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full bg-[#0297CF] text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${
+          className={`w-full bg-[#0297CF] !text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${
             loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'
           }`}
         >
@@ -122,7 +122,7 @@ export default function Login() {
         </div>
 
         {/* Social Buttons */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid w-full">
           <button className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl border-2 border-gray-100 hover:bg-gray-200 transition-colors duration-300">
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -131,16 +131,6 @@ export default function Login() {
             />
             <span className="text-[1.4rem] font-medium text-gray-700">
               Google
-            </span>
-          </button>
-          <button className="flex items-center justify-center gap-3 py-4 px-6 rounded-xl border-2 border-gray-100 hover:bg-gray-200 transition-colors duration-300">
-            <img
-              src="https://www.svgrepo.com/show/475647/facebook-color.svg"
-              alt="Facebook"
-              className="w-5 h-5"
-            />
-            <span className="text-[1.4rem] font-medium text-gray-700">
-              Facebook
             </span>
           </button>
         </div>

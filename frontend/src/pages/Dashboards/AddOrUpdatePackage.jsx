@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Minus, X, Upload, ChevronLeft, Calendar, MapPin, Clock, DollarSign, Users, Image, Bed, Car, Coffee, Plane, Star, User, Train, Ship, Globe, Ticket, Utensils, Camera, ClipboardCheckIcon, ClipboardCheck } from 'lucide-react';
+import { Plus, X, Upload, ChevronLeft, Calendar, MapPin, Users, Bed, Car, Coffee, Plane, Star, User, Train, Ship, Globe, Ticket, Utensils, Camera, ClipboardCheckIcon, ClipboardCheck, IndianRupee } from 'lucide-react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
+import "../../styles/CustomDatePicker.css";
 import api from '../../api';             // ← your axios instance
 
 function AddOrUpdatePackage() {
@@ -214,10 +216,12 @@ function AddOrUpdatePackage() {
     updatePackageDetails('stays', [
       ...packageDetails.stays,
       {
+        id: packageDetails.stays.length + 1,
         hotel: '',
         roomType: '',
         amenities: [],
         images: [],
+        description: ''
       }
     ]);
   };
@@ -279,7 +283,17 @@ function AddOrUpdatePackage() {
       navigate('/seller-dashboard/packages');
     } catch (err) {
       console.error('Update failed:', err);
-      alert('Failed to update package');
+      let errorMessage = 'Failed to update package';
+      
+      if (err.response?.status === 403) {
+        errorMessage = 'You are not authorized to update this package';
+      } else if (err.response?.status === 404) {
+        errorMessage = 'Package not found';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      }
+      
+      alert(errorMessage);
     }
   };
 
@@ -525,7 +539,7 @@ function AddOrUpdatePackage() {
                               className="pl-10 input-base"
                               placeholder="Price per person"
                             />
-                            <DollarSign className="input-icon" />
+                            <IndianRupee className="input-icon" />
                           </div>
                         </div>
                         <button
@@ -559,7 +573,7 @@ function AddOrUpdatePackage() {
                       className="pl-10 input-base"
                       placeholder="Enter fixed price per person"
                     />
-                    <DollarSign className="input-icon" />
+                    <IndianRupee className="input-icon" />
                   </div>
                 )}
               </div>
