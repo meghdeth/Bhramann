@@ -3,11 +3,11 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 export const signup = async (req, res) => {
-  const { name, phone, email, password } = req.body;
+  const { name, phone, email, password, role } = req.body;
   const exists = await User.findOne({ email });
   if (exists) return res.status(400).json({ message: 'Email already in use' });
   const hashed = await bcrypt.hash(password, 12);
-  const user = await User.create({ name, phone, email, password: hashed });
+  const user = await User.create({ name, phone, email, password: hashed, role });
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
   res.json({ token, user: { id: user._id, name: user.name, phone: user.phone, email: user.email, role: user.role } });
 };

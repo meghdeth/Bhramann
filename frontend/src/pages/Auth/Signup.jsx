@@ -9,13 +9,26 @@ import { useNavigate } from 'react-router-dom';
 export default function Signup() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState('user');
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     password: '',
     agreeToTerms: true,
+    role: ''
   });
+  const accountTypes = [
+    {
+      id: 'user',
+      name: 'User',
+    },
+    {
+      id: 'seller',
+      name: 'Seller',
+    }
+  ];
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -33,6 +46,7 @@ export default function Signup() {
         phone: formData.phone,
         email: formData.email,
         password: formData.password,
+        role: selectedRole
       });
       saveAuth({ token: data.token, user: data.user });
       // TODO: redirect to dashboard or home
@@ -58,6 +72,38 @@ export default function Signup() {
         {error && (
           <p className="text-red-500 text-[1.4rem] mb-4">{error}</p>
         )}
+
+        <div className="bg-white rounded-2xl">
+          <div className="flex justify-center gap-4">
+            {accountTypes.map((type) => (
+              <div
+                key={type.id}
+                onClick={() => setSelectedRole(type.id)}
+                className={`
+                    relative px-6 py-3 w-full rounded-xl border-2 cursor-pointer transition-all duration-200
+                    ${selectedRole === type.id
+                    ? 'border-blue-500 bg-blue-50 shadow-md transform scale-[1.02]'
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                  }
+                  `}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`
+                    rounded-lg transition-colors
+                      ${selectedRole === type.id
+                      ? 'bg-blue-100 text-blue-600'
+                      : 'bg-gray-100 text-gray-600'
+                    }
+                    `}>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-900">{type.name}</h3>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Name Input */}
         <div className="!mt-5">
