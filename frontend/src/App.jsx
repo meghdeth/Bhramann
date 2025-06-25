@@ -1,8 +1,10 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import GlobalStyles from "./styles/GlobalStyles";
 import ScrollToTop from "./utils/ScrollToTop";
 import SellerSettings from "./components/Dashboard/SellerDashboard/SellerSettings";
+import { isAuthenticated } from "./auth";
+import VerifyEmail from "./pages/Auth/VerifyEmail";
 
 const Applayout = lazy(() => import("./pages/Applayout"));
 const Home = lazy(() => import("./pages/Home"));
@@ -28,6 +30,17 @@ const PackageDetail = lazy(() => import("./pages/PackageDetail"));
 const EditProfile = lazy(() => import("./components/Dashboard/Profile/EditProfile"));
 const CompletedTrips = lazy(() => import("./components/Dashboard/Profile/CompletedTrips"));
 const UpcomingTrips = lazy(() => import("./components/Dashboard/Profile/UpcomingTrips"));
+const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
+
+// PrivateRoute component
+function PrivateRoute({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+}
+
+// PublicRoute component (for pages like login/signup)
+function PublicRoute({ children }) {
+  return !isAuthenticated() ? children : <Navigate to="/" replace />;
+}
 
 function App() {
   return (
@@ -35,7 +48,7 @@ function App() {
       <GlobalStyles />
       <BrowserRouter>
         <ScrollToTop />
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<div className="flex h-[100vh] w-full items-center justify-center">Loading...</div>}>
           <Routes>
             <Route path="/" element={<Applayout />}>
               <Route index element={<Home />} />
@@ -44,10 +57,12 @@ function App() {
               <Route path="tour-package/:id" element={<PackageDetail />} />
               <Route path="cart" element={<MyCart />} />
             </Route>
-              <Route path="login" element={<Login />} />
-              <Route path="signup" element={<Signup />} />
+            <Route path="login" element={<PublicRoute><Login /></PublicRoute>} />
+            <Route path="signup" element={<PublicRoute><Signup /></PublicRoute>} />
+            <Route path="verify-email" element={<VerifyEmail />} />
+            <Route path="reset-password/:token" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
-            <Route path="/seller-dashboard" element={<DashboardLayout />}>
+            <Route path="/seller-dashboard" element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
               <Route index element={<SellerHome />} />
               <Route path="packages" element={<MyPackages />} />
               <Route path="packages/modify-package/:id" element={<AddOrUpdatePackage />} />
@@ -57,11 +72,11 @@ function App() {
               <Route path="seller-settings" element={<SellerSettings/>}/>
             </Route>
 
-            <Route path="/edit-profile" element={<EditProfile />}/>
-            <Route path="/completed-trips" element={<CompletedTrips />}/>
-            <Route path="/upcoming-trips" element={<UpcomingTrips />}/>
+            <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
+            <Route path="/completed-trips" element={<PrivateRoute><CompletedTrips /></PrivateRoute>}/>
+            <Route path="/upcoming-trips" element={<PrivateRoute><UpcomingTrips /></PrivateRoute>}/>
 
-            <Route path="/superadmin-panel" element={<AdminLayout />}>
+            <Route path="/superadmin-panel" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
               <Route index element={<AdminHome />} />
               <Route path="sellers" element={<Sellers />} />
               <Route path="requests" element={<Requests />} />

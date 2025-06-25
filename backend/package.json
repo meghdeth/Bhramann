@@ -16,7 +16,8 @@
     "express": "^4.17.1",
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.13.2"
+    "mongoose": "^5.13.2",
+    "nodemailer": "^7.0.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

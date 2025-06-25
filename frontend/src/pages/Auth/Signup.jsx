@@ -5,6 +5,7 @@ import AuthLayout from './AuthLayout';
 import api from '../../api';             // ← your axios instance
 import { saveAuth } from '../../auth'; // ← helper to persist the JWT
 import { useNavigate } from 'react-router-dom';
+import { signup as signupApi, verifyOtp } from '../../api';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ export default function Signup() {
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [otpStep, setOtpStep] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [userId, setUserId] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,23 +45,74 @@ export default function Signup() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.post('/api/auth/signup', {
+      const { data } = await signupApi({
         name: formData.name,
         phone: formData.phone,
         email: formData.email,
         password: formData.password,
         role: selectedRole
       });
-      saveAuth({ token: data.token, user: data.user });
-      // TODO: redirect to dashboard or home
-      alert("Signup successfully")
-      navigate('/login')
+      setUserId(data.userId); // Keep this for future use
+      navigate('/verify-email', { state: { userId: data.userId } });
+
     } catch (err) {
       setError(err.response?.data?.message || 'Signup failed');
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const { data } = await verifyOtp({ userId, otp });
+      saveAuth({ token: data.token, user: data.user });
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'OTP verification failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (otpStep) {
+    return (
+      <AuthLayout
+        title="Verify OTP"
+        subtitle="Enter the OTP sent to your email"
+        alternateLink="/login"
+        alternateLinkText="Already have an account? Sign in"
+        overlayTitle="Verify Your Email"
+        overlayText="We sent a 6-digit code to your email. Enter it below to activate your account."
+      >
+        <form onSubmit={handleOtpSubmit} className="w-full">
+          {error && <p className="text-red-500 text-[1.4rem] mb-4">{error}</p>}
+          <div className="!my-5">
+            <label className="block text-[1.4rem] font-medium text-gray-700 !mb-2">
+              OTP Code
+            </label>
+            <input
+              type="text"
+              value={otp}
+              onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              className="w-full !p-4 text-[1.6rem] bg-white rounded-xl border-2 border-gray-100 focus:border-gray-300"
+              placeholder="Enter 6-digit code"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-[#0297CF] !text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'}`}
+          >
+            {loading ? 'Verifying…' : 'Verify'}
+          </button>
+        </form>
+      </AuthLayout>
+    );
+  }
 
   return (
     <AuthLayout
@@ -74,7 +129,7 @@ export default function Signup() {
         )}
 
         <div className="bg-white rounded-2xl">
-          <div className="flex justify-center gap-4">
+          <div className="flex justify-center gap-6">
             {accountTypes.map((type) => (
               <div
                 key={type.id}
@@ -87,7 +142,7 @@ export default function Signup() {
                   }
                   `}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center">
                   <div className={`
                     rounded-lg transition-colors
                       ${selectedRole === type.id
@@ -97,7 +152,7 @@ export default function Signup() {
                     `}>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{type.name}</h3>
+                    <h3 className="font-semibold text-gray-900 text-center">{type.name}</h3>
                   </div>
                 </div>
               </div>
@@ -228,7 +283,7 @@ export default function Signup() {
         </button>
 
         {/* Social Divider */}
-        <div className="flex items-center !my-8">
+        <div className="flex items-center !my-6">
           <div className="flex-1 h-[1px] bg-gray-200" />
           <span className="!px-4 text-[1.4rem] text-gray-500">
             or sign up with

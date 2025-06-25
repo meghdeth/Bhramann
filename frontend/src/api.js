@@ -21,3 +21,7 @@ export const updateProfile = (data) => api.put('/api/auth/profile', data);
 export const changePassword = (data) => api.put('/api/auth/password', data);
 // Get current user profile
 export const getProfile = () => api.get('/api/auth/profile');
+
+export const signup = (data) => api.post('/api/auth/signup', data);
+export const verifyOtp = (data) => api.post('/api/auth/verify-otp', data);
+export const resendOtp = (userId) => api.post('/api/auth/resend-otp', { userId });

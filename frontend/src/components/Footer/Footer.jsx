@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube, FaLinkedin } from "react-icons/fa";
 import {
   SiVisa,
   SiMastercard,
@@ -101,7 +101,7 @@ const Divider = styled.hr`
 const SecondRow = styled.div`
   width: 90%;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
 
@@ -141,7 +141,6 @@ function Footer() {
           <FooterHeading>Company</FooterHeading>
           <FooterLink href="#">About Us</FooterLink>
           <FooterLink href="#">Privacy Policy</FooterLink>
-          <FooterLink href="#">Community Blogs</FooterLink>
           <FooterLink href="#">Terms of Service</FooterLink>
         </FooterColumn>
 
@@ -153,9 +152,10 @@ function Footer() {
         </FooterColumn>
 
         <FooterColumn>
-          <FooterHeading>Social</FooterHeading>
+          <FooterHeading>Connect us through our Social</FooterHeading>
           <SocialIcons>
             <FaFacebookF size={20} />
+            <FaLinkedin size={20}/>
             <FaTwitter size={20} />
             <FaInstagram size={20} />
             <FaYoutube size={20} />
@@ -168,14 +168,7 @@ function Footer() {
 
       {/* Second Row */}
       <SecondRow>
-        <CopyrightText>© Copyright ascends 2024</CopyrightText>
-        <PaymentIcons>
-          <SiVisa size={30} />
-          <SiMastercard size={30} />
-          <SiPaypal size={30} />
-          <SiAmericanexpress size={30} />
-          <SiDiscover size={30} />
-        </PaymentIcons>
+        <CopyrightText>© Copyright Bhramann Pvt. Ltd 2025</CopyrightText>
       </SecondRow>
     </FooterContainer>
   );

@@ -14,20 +14,46 @@ export default function SellerHome() {
   const [error, setError] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [dropdownPosition, setDropdownPosition] = useState({ x: 0, y: 0 });
+  const [userId, setUserId] = useState('');
+  const [showVerifyBtn, setShowVerifyBtn] = useState(false);
+  const getUserIdFromStorage = () => {
+    const storedUser = localStorage.getItem('bhramann_user');
+    try {
+      return storedUser ? JSON.parse(storedUser)?.id : null;
+    } catch {
+      return null;
+    }
+  };
+  
 
   // Fetch packages from API on mount
   useEffect(() => {
     api.get("/api/packages")
       .then((res) => {
         setPackages(res.data);
-        setLoading(false);
       })
       .catch((err) => {
-        console.error("Failed to load packages", err);
-        setError("Failed to load packages.");
+        console.error("Failed to load packages:", err);
+
+        if (err.response?.status === 401) {
+          setError("You're not logged in. Please sign in to access your packages.");
+        } else if (err.response?.status === 403) {
+          setError("Your email is not verified. Please verify your email to continue.");
+          setUserId(getUserIdFromStorage());
+          setShowVerifyBtn(true);
+        } else if (err.response?.status === 404) {
+          setError("Package information could not be found.");
+        } else if (err.response?.status >= 500) {
+          setError("Server error. Please try again later.");
+        } else {
+          setError("Unable to load packages. Please check your connection and try again.");
+        }
+      })
+      .finally(() => {
         setLoading(false);
       });
   }, []);
+
 
   const handleAction = (pkgId, action) => {
     setActiveDropdown(null);
@@ -70,24 +96,51 @@ export default function SellerHome() {
   }, 0);
 
   const stats = [
-    { title: "Today's Sales", value: todaysSales.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2
-    }), icon: CreditCardIcon, color: "from-blue-500 to-blue-600" },
+    {
+      title: "Today's Sales", value: todaysSales.toLocaleString('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2
+      }), icon: CreditCardIcon, color: "from-blue-500 to-blue-600"
+    },
     { title: "Active Packages", value: activePackages, icon: Package, color: "from-emerald-500 to-emerald-600" },
-    { title: "Monthly Revenue", value: monthlyRevenue.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 2
-    }), icon: TrendingUp, color: "from-violet-500 to-violet-600" },
+    {
+      title: "Monthly Revenue", value: monthlyRevenue.toLocaleString('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 2
+      }), icon: TrendingUp, color: "from-violet-500 to-violet-600"
+    },
     { title: "Total Bookings", value: totalBookings, icon: Users, color: "from-amber-500 to-amber-600" }
   ];
 
   const topPackages = [...packages].sort((a, b) => b.bookings - a.bookings).slice(0, 3);
 
-  if (loading) return <p className="p-6">Loading dashboard…</p>;
-  if (error) return <p className="p-6 text-red-500">{error}</p>;
+  if (loading) {
+    return (
+      <div className="p-6 text-center text-lg text-gray-600 animate-pulse">
+        Loading your dashboard...
+      </div>
+    );
+  }
+
+
+  if (error) {
+    return (
+      <div>
+        <p className="p-6 text-red-500">{error}</p>
+        {showVerifyBtn && userId && (
+          <button
+            onClick={() => navigate('/verify-email', { state: { userId } })}
+            className="primary-btn"
+          >
+            Verify
+          </button>
+        )}
+
+      </div>
+    );
+  }
 
   return (
     <div className="w-full p-5">
@@ -151,9 +204,8 @@ export default function SellerHome() {
                   <td className="hidden md:table-cell p-4 text-gray-800">₹{pkg.priceRanges?.[0]?.price.toLocaleString()}</td>
                   <td className="hidden md:table-cell p-4 text-gray-800">{pkg.bookings} units</td>
                   <td className="hidden md:table-cell p-4">
-                    <span className={`px-3 py-1 rounded-full text-lg font-medium ${
-                      pkg.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
-                    }`}>{pkg.status}</span>
+                    <span className={`px-3 py-1 rounded-full text-lg font-medium ${pkg.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                      }`}>{pkg.status}</span>
                   </td>
                   <td className="table-cell p-4 text-gray-400 text-sm">Click row for actions</td>
                 </tr>

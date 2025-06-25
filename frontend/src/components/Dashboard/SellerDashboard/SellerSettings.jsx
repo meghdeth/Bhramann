@@ -49,8 +49,8 @@ export default function SellerSettings() {
     setProfileMsg("");
     try {
       const name = `${userProfile.firstName} ${userProfile.lastName}`.trim();
-      const { email, phone, bio } = userProfile;
-      const res = await updateProfile({ name, email, phone, bio });
+      const { phone, bio } = userProfile;
+      const res = await updateProfile({ name, phone, bio });
       setProfileMsg("Profile updated successfully!");
     } catch (err) {
       setProfileMsg(err.response?.data?.message || "Failed to update profile");
@@ -137,24 +137,26 @@ export default function SellerSettings() {
             </div>
 
             <div>
-              <label className="block text-lg font-medium text-slate-700 mb-2">
-                Email Address
+              <label
+                htmlFor="email"
+                className="block text-lg font-medium text-slate-700 mb-2"
+              >
+                Email Address <span className="text-slate-500 text-md">(Read-only)</span>
               </label>
+
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6" />
+                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
                 <input
+                  id="email"
                   type="email"
                   value={userProfile.email}
-                  onChange={(e) =>
-                    setUserProfile((prev) => ({
-                      ...prev,
-                      email: e.target.value,
-                    }))
-                  }
-                  className="w-full pl-14 pr-6 py-4 text-lg border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  readOnly
+                  disabled
+                  className="cursor-not-allowed w-full pl-14 pr-6 py-4 text-lg border border-slate-300 rounded-xl !bg-slate-100 text-slate-500 focus:outline-none"
                 />
               </div>
             </div>
+
 
             <div>
               <label className="block text-lg font-medium text-slate-700 mb-2">

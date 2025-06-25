@@ -36,6 +36,14 @@ function AuthLayout({
 
       {/* Right Side - Form */}
       <div className="md:w-1/2 min-h-screen flex flex-col items-center justify-center !px-10 bg-[#f8f9fa] w-full">
+          <div className="!mt-8 text-right w-full">
+            <Link 
+              to={alternateLink}
+              className="flex align-center justify-end text-[1.4rem] text-gray-600 hover:!text-gray-800 transition-colors duration-300"
+            >
+              {alternateLinkText}
+            </Link>
+          </div>
         <div className="w-full max-w-[450px]">
           <h1 className="md:text-[4rem] font-bold text-[3rem]">
             {title}
@@ -46,14 +54,6 @@ function AuthLayout({
 
           {children}
 
-          <div className="!mt-8 text-center">
-            <Link 
-              to={alternateLink}
-              className="text-[1.4rem] text-gray-600 hover:!text-gray-800 transition-colors duration-300"
-            >
-              {alternateLinkText}
-            </Link>
-          </div>
         </div>
       </div>
     </div>

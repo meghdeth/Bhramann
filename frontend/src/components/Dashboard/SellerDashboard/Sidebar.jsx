@@ -1,7 +1,9 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { NavLink } from "react-router-dom";
-import { Calendar, CreditCard, Home, Package, Settings, X } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Calendar, CreditCard, Home, LogOut, Package, Settings, X } from "lucide-react";
+import { clearAuth } from '../../../auth';
+import { useState } from "react";
 
 const SidebarContainer = styled.nav`
   width: 250px;
@@ -124,6 +126,17 @@ const links = [
   }
 ]
 function Sidebar({ onClose }) {
+  const navigate = useNavigate();
+  const [logoutText, setLogoutText] = useState('Logout')
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to log out?");
+    if (!confirmLogout) return;
+    setLogoutText('Logging out...')
+    setTimeout(() => {
+      clearAuth();
+      navigate("/");
+    }, 2500);
+  };
   return (
     <SidebarContainer>
       <CloseButton onClick={onClose}><X /></CloseButton>
@@ -132,12 +145,18 @@ function Sidebar({ onClose }) {
           return (
             <SidebarLink key={index} to={link.path} onClick={onClose} {...(link.path === "/seller-dashboard" ? { end: true } : {})}>
               <Icon>
-                <link.icon className="size-8"/>
+                <link.icon className="size-8" />
               </Icon>
               {link.label}
             </SidebarLink>
           );
         })}
+        <SidebarLink as="button" onClick={handleLogout} className="!text-red-500 hover:!bg-red-400 hover:!text-white">
+          <Icon>
+            <LogOut className="size-8" />
+          </Icon>
+          {logoutText}
+        </SidebarLink>
       </ItemContainer>
     </SidebarContainer>
   );

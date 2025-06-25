@@ -21,3 +21,5 @@ export const saveAuth = ({ token, user }) => {
     localStorage.removeItem('bhramann_user');
   };
   
+  export const isAuthenticated = () => !!getToken();
+  

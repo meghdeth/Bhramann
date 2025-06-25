@@ -64,21 +64,33 @@ export default function MyPackages() {
 
   // Fetch packages on mount
   useEffect(() => {
-    api.get("/api/packages")
-      .then(({ data }) => {
+    const fetchPackages = async () => {
+      try {
+        const { data } = await api.get("/api/packages");
         setPackages(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Failed to load packages:", err);
+  
         if (err.response?.status === 401) {
-          setError("Please log in to view your packages.");
+          setError("You're not logged in. Please sign in to access your packages.");
+        } else if (err.response?.status === 403) {
+          setError("Your email is not verified. Please verify your email to continue.");
+        } else if (err.response?.status === 404) {
+          setError("Package information could not be found.");
+        } else if (err.response?.status >= 500) {
+          setError("Server error. Please try again later.");
         } else {
-          setError("Could not load packages. Please try again later.");
+          setError("Unable to load packages. Please check your connection and try again.");
         }
+  
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+  
+    fetchPackages();
   }, []);
+  
 
   const handleViewDetails = (pkg) => {
     setSelectedPackage(pkg);
