@@ -11,12 +11,15 @@ function generateOTP() {
 async function sendOTPEmail(email, otp) {
   // Configure your transporter (use real credentials in production)
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.zoho.in',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      pass: process.env.EMAIL_PASS, 
     },
   });
+  
   await transporter.sendMail({
     from: `"Bhramann" <${process.env.EMAIL_USER}>`,
     to: email,
@@ -169,12 +172,15 @@ export const forgotPassword = async (req, res) => {
   // Send email
   const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.zoho.in',
+    port: 465,
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
+  
   await transporter.sendMail({
     from: `"Bhramann Support" <${process.env.EMAIL_USER}>`,
     to: email,
