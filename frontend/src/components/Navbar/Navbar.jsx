@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { Menu, ShoppingCart, X } from 'lucide-react';
-import ProfileDropdown from './ProfileDropdown.jsx';
+// import ProfileDropdown from './ProfileDropdown.jsx';
 import api from '../../api';
 import { getUser, clearAuth } from '../../auth';
 
@@ -220,12 +220,12 @@ export default function Navbar({ isScrolled, isHomePage }) {
                 )}
 
               </button>
-              <ProfileDropdown
+{/*               <ProfileDropdown
                   isOpen={isProfileOpen}
                   onClose={() => setIsProfileOpen(false)}
                   onLogout={handleLogout}
                   user={user}
-              />
+              /> */}
             </div>
           ) : (
             <>
