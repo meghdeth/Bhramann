@@ -24,25 +24,22 @@ const FooterContainer = styled.footer`
 `;
 
 const FirstRow = styled.div`
-  /* background-color: red; */
   display: flex;
   width: 90%;
   margin-bottom: 2rem;
-  /* border: 2px solid white; */
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    gap: 2rem;
   }
 `;
 
 const FooterColumn = styled.div`
   flex: 1;
   margin: 0 1.5rem;
-  /* max-width: 25%; */
   text-align: left;
-
   @media (max-width: 768px) {
-    margin: 1rem 0;
+    margin: 0;
     text-align: center;
     width: 100%;
   }
@@ -52,6 +49,7 @@ const FooterHeading = styled.h3`
   margin-bottom: 1rem;
   letter-spacing: 1px;
   color: #fff;
+  font-size: 1.6rem;
   @media (max-width: 768px) {
     font-size: 1.8rem;
   }
@@ -64,8 +62,8 @@ const FooterLink = styled.a`
   text-decoration: none;
   font-weight: 300;
   letter-spacing: 1px;
-
-  &:hover, &:focus {
+  &:hover,
+  &:focus {
     color: #fff;
   }
   transition: all 0.2s ease-in-out;
@@ -82,10 +80,10 @@ const SocialIcons = styled.div`
   margin-top: 1rem;
   & > svg {
     cursor: pointer;
-    &:hover{
+    &:hover {
       color: #fff;
     }
-}
+  }
   @media (max-width: 768px) {
     justify-content: center;
   }
@@ -100,25 +98,28 @@ const Divider = styled.hr`
 
 const SecondRow = styled.div`
   width: 90%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
   flex-wrap: wrap;
-
+  gap: 1rem;
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: center;
+    gap: 1.5rem;
   }
 `;
 
 const CopyrightText = styled.p`
-  margin: 0;
+  color: grey;
+  font-size: 1.5rem;
 `;
 
 const PaymentIcons = styled.div`
   display: flex;
   gap: 1rem;
-
+  & > svg {
+    font-size: 2rem;
+    cursor: default;
+  }
   @media (max-width: 768px) {
     margin-top: 1rem;
     gap: 0.5rem;
@@ -131,31 +132,34 @@ function Footer() {
       {/* First Row */}
       <FirstRow>
         <FooterColumn>
-          <FooterHeading>Support</FooterHeading>
-          <FooterLink href="#">Help Center</FooterLink>
-          <FooterLink href="#">Safety Information</FooterLink>
-          <FooterLink href="#">Cancellation Options</FooterLink>
+          <FooterHeading>Services</FooterHeading>
+          <FooterLink href="#">Trip Packages</FooterLink>
+          <FooterLink href="#">Hostel Listings</FooterLink>
+          <FooterLink href="#">Student Visa Assistance</FooterLink>
+          <FooterLink href="#">Conference Visa Support</FooterLink>
         </FooterColumn>
 
         <FooterColumn>
           <FooterHeading>Company</FooterHeading>
           <FooterLink href="#">About Us</FooterLink>
-          <FooterLink href="#">Privacy Policy</FooterLink>
-          <FooterLink href="#">Terms of Service</FooterLink>
+          <FooterLink href="#">Careers</FooterLink>
+          <FooterLink href="#">Blog</FooterLink>
+          <FooterLink href="#">Press</FooterLink>
         </FooterColumn>
 
         <FooterColumn>
-          <FooterHeading>Contact</FooterHeading>
-          <FooterLink href="#">FAQ</FooterLink>
-          <FooterLink href="#">Get in Touch</FooterLink>
-          <FooterLink href="#">Partnerships</FooterLink>
+          <FooterHeading>Support</FooterHeading>
+          <FooterLink href="#">Help Center</FooterLink>
+          <FooterLink href="#">FAQs</FooterLink>
+          <FooterLink href="#">Contact Us</FooterLink>
+          <FooterLink href="#">Safety & Security</FooterLink>
         </FooterColumn>
 
         <FooterColumn>
-          <FooterHeading>Connect us through our Social</FooterHeading>
+          <FooterHeading>Connect</FooterHeading>
           <SocialIcons>
             <FaFacebookF size={20} />
-            <FaLinkedin size={20}/>
+            <FaLinkedin size={20} />
             <FaTwitter size={20} />
             <FaInstagram size={20} />
             <FaYoutube size={20} />
@@ -168,7 +172,8 @@ function Footer() {
 
       {/* Second Row */}
       <SecondRow>
-        <CopyrightText>© Copyright Bhramann Pvt. Ltd 2025</CopyrightText>
+        <CopyrightText>© 2025 Bhramann Loop Pvt. Ltd.</CopyrightText>
+        
       </SecondRow>
     </FooterContainer>
   );

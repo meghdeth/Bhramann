@@ -56,8 +56,8 @@ const InfoText = styled.h2`
     letter-spacing: 2px;
   }
   `;
-  
-  const SubText = styled.p`
+
+const SubText = styled.p`
   font-size: 2rem;
   @media (max-width: 768px) {
     position: absolute;
@@ -107,35 +107,30 @@ const Dot = styled.div`
 `;
 
 const slides = [
- { id: 1,
-  text: "Discover Luxury Travel",
-  subtext: "Experience the world's most exclusive destinations",
-  image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
-},
-{ 
-  id: 2, 
-  text: "Unforgettable Adventures", 
-  subtext: "Create memories that last a lifetime",
-  image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e" 
-},
-{ 
-  id: 3, 
-  text: "Pristine Paradise", 
-  subtext: "Escape to untouched natural wonders",
-  image: "https://images.unsplash.com/photo-1506929562872-bb421503ef21" 
-},
-{ 
-  id: 4, 
-  text: "Luxury Redefined", 
-  subtext: "Where comfort meets extraordinary",
-  image: "https://images.unsplash.com/photo-1566073771259-6a8506099945" 
-},
-{ 
-  id: 5, 
-  text: "Beyond Imagination", 
-  subtext: "Journey to the extraordinary",
-  image: "https://images.unsplash.com/photo-1502528230654-e2161eb9f08a" 
-},
+  {
+    id: 1,
+    text: "Student Discounts",
+    subtext: "Unlock exclusive deals—save up to 25% on hostels, tours, and more!",
+    image: "https://images.unsplash.com/photo-1482398650355-d4c6462afa0e"
+  },
+  {
+    id: 2,
+    text: "Explore on a Budget",
+    subtext: "Affordable trips tailored for students",
+    image: "https://images.unsplash.com/photo-1591719539805-81516f58dabc"
+  },
+  {
+    id: 3,
+    text: "Backpack Adventures",
+    subtext: "Discover hidden gems with fellow travelers",
+    image: "https://images.unsplash.com/photo-1538422314488-83e8e11d298c"
+  },
+  {
+    id: 4,
+    text: "Campus Weekend Escapes",
+    subtext: "Recharge between semesters with short getaways",
+    image: "https://images.unsplash.com/photo-1492538368677-f6e0afe31dcc"
+  }
 ];
 
 function InfoCarousel() {
@@ -167,8 +162,8 @@ function InfoCarousel() {
         {slides.map((slide) => (
           <Slide
             key={slide.id}
-            style={{ 
-              background:  `linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url(${slide.image}) no-repeat center center/cover`,
+            style={{
+              background: `linear-gradient( rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2) ), url(${slide.image}) no-repeat center center/cover`,
               // backgroundImage: `url(${slide.image})`,
             }}
           >
