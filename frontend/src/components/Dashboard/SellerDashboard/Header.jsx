@@ -1,8 +1,10 @@
 import React from 'react';
 import { Bell, MessageSquare, User, ChevronDown, Menu, User2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Header({onClose}) {
+  const location = useLocation();
+  const isUser = location.pathname.startsWith('/user-dashboard');
   return (
     <header className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -15,7 +17,7 @@ export default function Header({onClose}) {
           <div className="flex items-center space-x-3">
             <div>
               <a href='/' className="text-4xl font-semibold text-slate-800 tracking-tight">Bhramann</a>
-              <p className="text-2xl text-slate-500 font-medium">Seller Dashboard</p>
+              <p className="text-2xl text-slate-500 font-medium">{isUser ? "User Dashboard" : "Seller Dashboard"}</p>
             </div>
           </div>
         </div>
@@ -35,7 +37,7 @@ export default function Header({onClose}) {
           <button className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
             <MessageSquare className="size-8" />
           </button>
-          <Link to={"seller-settings"} className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
+          <Link to={"settings"} className="relative p-2 text-slate-600 hover:!text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200">
             <User2 className="size-8" />
           </Link>
         </div>

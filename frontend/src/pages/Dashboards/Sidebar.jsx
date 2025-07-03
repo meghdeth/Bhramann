@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { NavLink, useNavigate } from "react-router-dom";
-import { Calendar, CreditCard, Home, LogOut, Package, Settings, X } from "lucide-react";
-import { clearAuth } from '../../../auth';
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Badge, Calendar, CreditCard, GraduationCap, Home, LogOut, Package, Settings, X } from "lucide-react";
+import { clearAuth } from '../../auth';
 import { useState } from "react";
 
 const SidebarContainer = styled.nav`
@@ -95,39 +95,66 @@ const CloseButton = styled.button`
     font-size: 2rem;
     color: #333;
     cursor: pointer;
-  }
-`;
+    }
+    `;
 
-const links = [
-  {
-    path: "/seller-dashboard",
-    label: "Home",
-    icon: Home,
-  },
-  {
-    path: "/seller-dashboard/packages",
-    label: "Packages",
-    icon: Package,
-  },
-  {
-    path: "/seller-dashboard/orders",
-    label: "Bookings",
-    icon: Calendar,
-  },
-  {
-    path: "/seller-dashboard/payments",
-    label: "Payments",
-    icon: CreditCard,
-  },
-  {
-    path: "/seller-dashboard/seller-settings",
-    label: "Settings",
-    icon: Settings,
-  }
-]
 function Sidebar({ onClose }) {
   const navigate = useNavigate();
-  const [logoutText, setLogoutText] = useState('Logout')
+  const location = useLocation();
+  const isUser = location.pathname.startsWith('/user-dashboard');
+  const [logoutText, setLogoutText] = useState('Logout');
+
+  const links = isUser
+  ? [
+      {
+        path: "/user-dashboard",
+        label: "Home",
+        icon: Home,
+      },
+      {
+        path: "/user-dashboard/bookings",
+        label: "My Bookings",
+        icon: Calendar,
+      },
+      {
+        path: "/user-dashboard/verify-student",
+        label: "Verify",
+        icon: GraduationCap,
+      },
+      {
+        path: "/user-dashboard/settings",
+        label: "Settings",
+        icon: Settings,
+      },
+    ]
+  : [
+      {
+        path: "/seller-dashboard",
+        label: "Home",
+        icon: Home,
+      },
+      {
+        path: "/seller-dashboard/packages",
+        label: "Packages",
+        icon: Package,
+      },
+      {
+        path: "/seller-dashboard/orders",
+        label: "Bookings",
+        icon: Calendar,
+      },
+      {
+        path: "/seller-dashboard/payments",
+        label: "Payments",
+        icon: CreditCard,
+      },
+      {
+        path: "/seller-dashboard/settings",
+        label: "Settings",
+        icon: Settings,
+      },
+    ];
+
   const handleLogout = () => {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
     if (!confirmLogout) return;
@@ -143,7 +170,7 @@ function Sidebar({ onClose }) {
       <ItemContainer>
         {links.map((link, index) => {
           return (
-            <SidebarLink key={index} to={link.path} onClick={onClose} {...(link.path === "/seller-dashboard" ? { end: true } : {})}>
+            <SidebarLink key={index} to={link.path} onClick={onClose} {...(link.path === "/seller-dashboard" || "/user-dashboard" ? { end: true } : {})}>
               <Icon>
                 <link.icon className="size-8" />
               </Icon>

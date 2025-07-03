@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { User, Camera, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
-import { updateProfile, changePassword, getProfile } from '../../../api';
+import { updateProfile, changePassword, getProfile } from '../../api';
 
-export default function SellerSettings() {
+export default function Settings() {
   const [userProfile, setUserProfile] = useState({
     firstName: "",
     lastName: "",

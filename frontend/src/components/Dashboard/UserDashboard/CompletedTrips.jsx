@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { MapPin, Clock, Star, X } from 'lucide-react';
-import Navbar from '../../Navbar/Navbar';
 
 const completedTrips = [
     {
@@ -102,8 +101,7 @@ function CompletedTrips() {
 
     return (
         <>
-            <Navbar isScrolled={true} />
-            <div className="min-h-screen bg-gray-50 pt-32 pb-20">
+            <div className="min-h-screen bg-gray-50">
                 <div className="px-8 md:px-4">
                     <h1 className="text-4xl font-bold text-gray-800 mb-8 ml-5">
                         Completed Trips

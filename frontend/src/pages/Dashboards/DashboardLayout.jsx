@@ -1,9 +1,8 @@
 import styled from "styled-components";
 import { Outlet } from "react-router-dom";
 import Header from "../../components/Dashboard/SellerDashboard/Header";
-import Sidebar from "../../components/Dashboard/SellerDashboard/Sidebar";
+import Sidebar from "./Sidebar";
 import { useState } from "react";
-import { Menu } from "lucide-react";
 
 const DashboardContainer = styled.div`
   display: flex;

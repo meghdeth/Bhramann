@@ -2,9 +2,12 @@ import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import GlobalStyles from "./styles/GlobalStyles";
 import ScrollToTop from "./utils/ScrollToTop";
-import SellerSettings from "./components/Dashboard/SellerDashboard/SellerSettings";
+import SellerSettings from "./pages/Dashboards/Settings";
 import { isAuthenticated } from "./auth";
 import VerifyEmail from "./pages/Auth/VerifyEmail";
+import UserDashboard from './components/Dashboard/UserDashboard/UserHome';
+import UserBookings from "./components/Dashboard/UserDashboard/UserBookings";
+import VerifyStudent from "./components/Dashboard/UserDashboard/verifyStudent";
 
 const Applayout = lazy(() => import("./pages/Applayout"));
 const Home = lazy(() => import("./pages/Home"));
@@ -27,9 +30,8 @@ const Edits = lazy(() => import("./components/Dashboard/AdminPanel/Edits"));
 const Login = lazy(() => import("./pages/Auth/Login"));
 const Signup = lazy(() => import("./pages/Auth/Signup"));
 const PackageDetail = lazy(() => import("./pages/PackageDetail"));
-const EditProfile = lazy(() => import("./components/Dashboard/Profile/EditProfile"));
-const CompletedTrips = lazy(() => import("./components/Dashboard/Profile/CompletedTrips"));
-const UpcomingTrips = lazy(() => import("./components/Dashboard/Profile/UpcomingTrips"));
+const CompletedTrips = lazy(() => import("./components/Dashboard/UserDashboard/CompletedTrips"));
+const UpcomingTrips = lazy(() => import("./components/Dashboard/UserDashboard/UpcomingTrips"));
 const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
 
 // PrivateRoute component
@@ -69,12 +71,9 @@ function App() {
               <Route path="packages/add-package" element={<AddOrUpdatePackage />} />
               <Route path="orders" element={<Orders />} />
               <Route path="payments" element={<Payments />} />
-              <Route path="seller-settings" element={<SellerSettings/>}/>
+              <Route path="settings" element={<SellerSettings />} />
             </Route>
 
-            <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>}/>
-            <Route path="/completed-trips" element={<PrivateRoute><CompletedTrips /></PrivateRoute>}/>
-            <Route path="/upcoming-trips" element={<PrivateRoute><UpcomingTrips /></PrivateRoute>}/>
 
             <Route path="/superadmin-panel" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
               <Route index element={<AdminHome />} />
@@ -83,6 +82,16 @@ function App() {
               <Route path="edits" element={<Edits />} />
               <Route path="requests/rejected" element={<RejectedPackages />} />
               <Route path="requests/approved" element={<ApprovedPackages />} />
+            </Route>
+
+            <Route path="/user-dashboard" element={<PrivateRoute><DashboardLayout /></PrivateRoute>}>
+              <Route index element={<UserDashboard />} />
+            <Route path="bookings" element={<UserBookings />} />
+            <Route path="verify-student" element={<VerifyStudent />} />
+            <Route path="settings" element={<SellerSettings />} />
+
+            <Route path="completed-trips" element={<CompletedTrips />} />
+            <Route path="upcoming-trips" element={<UpcomingTrips />} />
             </Route>
           </Routes>
         </Suspense>

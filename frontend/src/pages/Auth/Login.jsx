@@ -34,6 +34,8 @@ export default function Login() {
         navigate('/superadmin-panel');
       } else if (data.user.role === 'seller') {
         navigate('/seller-dashboard');
+      } else if (data.user.role === 'user') {
+        navigate('/user-dashboard');
       } else {
         navigate('/');
       }

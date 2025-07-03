@@ -1,6 +1,5 @@
 import React from 'react';
 import { Calendar, MapPin, Clock, X, Star } from 'lucide-react';
-import Navbar from '../../Navbar/Navbar';
 
 const upcomingTrips = [
     {
@@ -30,8 +29,7 @@ function UpcomingTrips() {
 
     return (
         <>
-            <Navbar isScrolled={true} />
-            <div className="min-h-screen bg-gray-50 pt-32 pb-20">
+            <div className="min-h-screen bg-gray-50 !pt-4">
                 <div className="px-8 md:px-4">
                     <h1 className="text-4xl font-bold text-gray-800 mb-8 ml-5">
                         Upcoming Trips
