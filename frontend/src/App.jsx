@@ -7,7 +7,7 @@ import { isAuthenticated } from "./auth";
 import VerifyEmail from "./pages/Auth/VerifyEmail";
 import UserDashboard from './components/Dashboard/UserDashboard/UserHome';
 import UserBookings from "./components/Dashboard/UserDashboard/UserBookings";
-import VerifyStudent from "./components/Dashboard/UserDashboard/verifyStudent";
+import VerifyStudent from "./components/Dashboard/UserDashboard/VerifyStudent";
 
 const Applayout = lazy(() => import("./pages/Applayout"));
 const Home = lazy(() => import("./pages/Home"));
