@@ -59,6 +59,7 @@ const InfoText = styled.h2`
 
 const SubText = styled.p`
   font-size: 2rem;
+  text-align: center;
   @media (max-width: 768px) {
     position: absolute;
     top: 35%;
