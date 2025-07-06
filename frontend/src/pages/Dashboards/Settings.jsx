@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { User, Camera, Mail, Phone, Lock, Eye, EyeOff } from "lucide-react";
-import { updateProfile, changePassword, getProfile } from '../../api';
+import { updateProfile, changePassword, getProfile, requestPasswordChangeOTP } from '../../api';
 
 export default function Settings() {
   const [userProfile, setUserProfile] = useState({
@@ -15,11 +15,14 @@ export default function Settings() {
     current: "",
     new: "",
     confirm: "",
+    otp: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [otploading, setotpLoading] = useState(false);
   const [profileMsg, setProfileMsg] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
+  const [otpRequested, setOtpRequested] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -57,18 +60,40 @@ export default function Settings() {
     }
   };
 
+  // Handler for requesting OTP
+  const handleRequestOTP = async (e) => {
+    e.preventDefault();
+    setotpLoading(true);
+    setPasswordMsg("");
+    if (!passwords.current) {
+      setPasswordMsg("Please enter your current password first");
+      setotpLoading(false);
+      return;
+    }
+    try {
+      await requestPasswordChangeOTP({ current: passwords.current });
+      setOtpRequested(true);
+      setPasswordMsg("OTP sent to your email. Please check your inbox.");
+      setotpLoading(false);
+    } catch (err) {
+      setPasswordMsg(err.response?.data?.message || "Failed to send OTP");
+      setotpLoading(false);
+    }
+  };
+
   // Handler for password update
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     setPasswordMsg("");
     try {
       await changePassword({
-        current: passwords.current,
         new: passwords.new,
         confirm: passwords.confirm,
+        otp: passwords.otp,
       });
       setPasswordMsg("Password updated successfully!");
-      setPasswords({ current: "", new: "", confirm: "" });
+      setPasswords({ current: "", new: "", confirm: "", otp: "" });
+      setOtpRequested(false);
     } catch (err) {
       setPasswordMsg(err.response?.data?.message || "Failed to update password");
     }
@@ -207,39 +232,51 @@ export default function Settings() {
           Change Password
         </h3>
 
-        <form onSubmit={handlePasswordUpdate}>
-          <div className="space-y-6">
-            <div>
-              <label className="block text-lg font-medium text-slate-700 mb-2">
-                Current Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={passwords.current}
-                  onChange={(e) =>
-                    setPasswords((prev) => ({
-                      ...prev,
-                      current: e.target.value,
-                    }))
-                  }
-                  className="w-full pl-14 pr-16 py-4 text-lg border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-6 h-6" />
-                  ) : (
-                    <Eye className="w-6 h-6" />
-                  )}
-                </button>
-              </div>
+        {/* Step 1: Request OTP */}
+        <form className="space-y-6" onSubmit={handleRequestOTP}>
+          <div>
+            <label className="block text-lg font-medium text-slate-700 mb-2">
+              Current Password
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={passwords.current}
+                onChange={(e) =>
+                  setPasswords((prev) => ({
+                    ...prev,
+                    current: e.target.value,
+                  }))
+                }
+                className="w-full pl-14 pr-16 py-4 text-lg border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="w-6 h-6" />
+                ) : (
+                  <Eye className="w-6 h-6" />
+                )}
+              </button>
             </div>
 
+            <button
+              type="submit"
+              disabled={!passwords.current || otploading}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 !text-white font-semibold py-2 px-4 text-sm rounded-lg transition-colors duration-200"
+            >
+              {otploading ? "Requesting..." : "Request OTP"}
+            </button>
+          </div>
+        </form>
+
+        {/* Step 2: OTP and Password Form */}
+        {otpRequested && (
+          <form onSubmit={handlePasswordUpdate} className="space-y-6 mt-10">
             <div>
               <label className="block text-lg font-medium text-slate-700 mb-2">
                 New Password
@@ -275,18 +312,64 @@ export default function Settings() {
                       confirm: e.target.value,
                     }))
                   }
+                  className={`w-full pl-14 pr-6 py-4 text-lg border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${passwords.new && passwords.confirm && passwords.new !== passwords.confirm
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-slate-300"
+                    }`}
+                />
+              </div>
+              {passwords.new &&
+                passwords.confirm &&
+                passwords.new !== passwords.confirm && (
+                  <p className="mt-1 text-red-600 text-sm">Passwords do not match</p>
+                )}
+            </div>
+
+            <div>
+              <label className="block text-lg font-medium text-slate-700 mb-2">
+                OTP
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-6 h-6" />
+                <input
+                  type="text"
+                  value={passwords.otp}
+                  onChange={(e) =>
+                    setPasswords((prev) => ({
+                      ...prev,
+                      otp: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter 6-digit OTP"
+                  maxLength={6}
                   className="w-full pl-14 pr-6 py-4 text-lg border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
             </div>
-          </div>
 
-          {passwordMsg && <div className="mt-4 text-blue-600 font-medium">{passwordMsg}</div>}
-          <button type="submit" className="mt-10 bg-blue-600 hover:bg-blue-700 !text-white font-semibold py-4 px-10 text-lg rounded-xl transition-colors duration-200">
-            Update Password
-          </button>
-        </form>
+            {passwordMsg && (
+              <div className="text-blue-600 font-medium">{passwordMsg}</div>
+            )}
+            <button
+              type="submit"
+              disabled={
+                !passwords.otp ||
+                !passwords.new ||
+                !passwords.confirm ||
+                passwords.new !== passwords.confirm
+              }
+              className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 !text-white font-semibold py-4 px-10 text-lg rounded-xl transition-colors duration-200"
+            >
+              Update Password
+            </button>
+          </form>
+        )}
+
+        {!otpRequested && passwordMsg && (
+          <div className="mt-4 text-blue-600 font-medium">{passwordMsg}</div>
+        )}
       </div>
+
     </div>
   );
 }

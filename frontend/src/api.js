@@ -17,6 +17,8 @@ export default api;
 
 // Update user profile
 export const updateProfile = (data) => api.put('/api/auth/profile', data);
+// Request password change OTP
+export const requestPasswordChangeOTP = (data) => api.post('/api/auth/request-password-otp', data);
 // Change user password
 export const changePassword = (data) => api.put('/api/auth/password', data);
 // Get current user profile

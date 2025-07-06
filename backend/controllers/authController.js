@@ -58,6 +58,56 @@ async function sendOTPEmail(email, otp) {
   });  
 }
 
+async function sendPasswordResetOTP(email, otp) {
+  // Configure your transporter (use real credentials in production)
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.zoho.in',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS, 
+    },
+  });
+  
+  await transporter.sendMail({
+    from: `"Bhramann" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: "Your Bhramann Password Reset Code",
+    text: `Your Bhramann password reset code is: ${otp}
+  
+  This code will expire in 10 minutes. If you did not request this, you can ignore this email.
+  
+  — The Bhramann Team`,
+    html: `
+      <div style="font-family:Arial, sans-serif; color:#333; line-height:1.5; max-width:600px; margin:0 auto; padding:20px;">
+        <h1 style="color:#0297CF; margin-bottom:0.5em;">Your Bhramann Login Code</h1>
+        <p>Hi there,</p>
+        <p>Use the following one-time password (OTP) to complete your password reset process:</p>
+        <div style="margin:20px 0; text-align:center;">
+          <span style="
+            display:inline-block;
+            background:#f0f4f8;
+            padding:15px 25px;
+            font-size:32px;
+            font-weight:bold;
+            letter-spacing:4px;
+            border-radius:6px;
+            color:#0297CF;
+          ">${otp}</span>
+        </div>
+        <p style="color:#666;">This code will expire in <strong>10 minutes</strong>. For your security, do not share it with anyone.</p>
+        <hr style="border:none; border-top:1px solid #eee; margin:30px 0;" />
+        <p style="font-size:14px; color:#999;">
+          If you didn't request this code, you can ignore this email.<br/>
+          Need help? <a href="https://bhramann.com/support" style="color:#0297CF;">Contact us</a>
+        </p>
+        <p style="font-size:12px; color:#aaa; margin-top:40px;">© ${new Date().getFullYear()} Bhramann. All rights reserved.</p>
+      </div>
+    `
+  });  
+}
+
 export const signup = async (req, res) => {
   const { name, phone, email, password, role } = req.body;
   const exists = await User.findOne({ email });
@@ -118,20 +168,73 @@ export const updateProfile = async (req, res) => {
   }
 };
 
-// Change user password
+// Request password change OTP
+export const requestPasswordChangeOTP = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    
+    const { current } = req.body;
+    if (!current) {
+      return res.status(400).json({ message: 'Current password is required' });
+    }
+    
+    const isMatch = await bcrypt.compare(current, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
+    
+    // Generate and store OTP
+    const otp = generateOTP();
+    const otpHash = await bcrypt.hash(otp, 10);
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    
+    user.passwordChangeOTP = otpHash;
+    user.passwordChangeOTPExpires = otpExpires;
+    await user.save();
+    
+    // Send OTP email
+    await sendPasswordResetOTP(user.email, otp);
+    
+    res.json({ message: 'OTP sent to your email' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Change user password with OTP verification
 export const changePassword = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
-    const { current, new: newPassword, confirm } = req.body;
-    if (!current || !newPassword || !confirm) {
-      return res.status(400).json({ message: 'All password fields are required' });
+    
+    const { new: newPassword, confirm, otp } = req.body;
+    if (!newPassword || !confirm || !otp) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
-    const isMatch = await bcrypt.compare(current, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Current password is incorrect' });
-    if (newPassword !== confirm) return res.status(400).json({ message: 'New passwords do not match' });
+    
+    if (newPassword !== confirm) {
+      return res.status(400).json({ message: 'New passwords do not match' });
+    }
+    
+    // Verify OTP
+    if (!user.passwordChangeOTP || !user.passwordChangeOTPExpires) {
+      return res.status(400).json({ message: 'Please request an OTP first' });
+    }
+    
+    if (user.passwordChangeOTPExpires < Date.now()) {
+      return res.status(400).json({ message: 'OTP has expired. Please request a new one' });
+    }
+    
+    const isOTPValid = await bcrypt.compare(otp, user.passwordChangeOTP);
+    if (!isOTPValid) {
+      return res.status(400).json({ message: 'Invalid OTP' });
+    }
+    
+    // Update password and clear OTP
     user.password = await bcrypt.hash(newPassword, 12);
+    user.passwordChangeOTP = undefined;
+    user.passwordChangeOTPExpires = undefined;
     await user.save();
+    
     res.json({ message: 'Password updated successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
