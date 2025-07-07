@@ -1,4 +1,3 @@
-// backend/controllers/packageController.js
 import asyncHandler from 'express-async-handler';
 import Package from '../models/Package.js';
 

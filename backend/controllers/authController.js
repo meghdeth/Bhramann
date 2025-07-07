@@ -9,7 +9,6 @@ function generateOTP() {
 }
 
 async function sendOTPEmail(email, otp) {
-  // Configure your transporter (use real credentials in production)
   const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.in',
     port: 465,
@@ -59,7 +58,6 @@ async function sendOTPEmail(email, otp) {
 }
 
 async function sendPasswordResetOTP(email, otp) {
-  // Configure your transporter (use real credentials in production)
   const transporter = nodemailer.createTransport({
     host: 'smtp.zoho.in',
     port: 465,

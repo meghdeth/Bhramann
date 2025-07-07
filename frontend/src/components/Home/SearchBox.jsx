@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { Plane, Hotel, Bus } from "lucide-react";
 
 import FlightSearch from "./searchTabs/FlightSearch";
 import HostelSearch from "./searchTabs/HostelSearch";
@@ -103,17 +104,25 @@ export default function SearchBox() {
     <SearchContainer>
       {/* Tabs */}
       <div className="absolute -top-16 left-0 flex bg-black text-white rounded-t overflow-hidden">
-        {["Flights", "Hostels", "Buses"].map((tab) => (
-          <div
-            key={tab}
-            className={`py-3 px-5 cursor-pointer ${activeTab === tab ? "bg-white text-black" : "hover:bg-white/80 hover:text-black"
-              }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </div>
-        ))}
+        {["Flights", "Hostels", "Buses"].map((tab) => {
+          const Icon = tab === "Flights" ? Plane : tab === "Hostels" ? Hotel : Bus;
+
+          return (
+            <div
+              key={tab}
+              className={`flex items-center gap-2 py-3 px-5 cursor-pointer transition ${activeTab === tab
+                  ? "bg-white text-black"
+                  : "hover:bg-white/80 hover:text-black"
+                }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              <Icon className="size-7" />
+              {tab}
+            </div>
+          );
+        })}
       </div>
+
 
       <div className="flex flex-col w-full gap-4">
         {renderFields()}
