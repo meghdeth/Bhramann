@@ -41,7 +41,7 @@ const Slide = styled.div`
 
 const InfoText = styled.h2`
   position: absolute;
-  top: 40%;
+  top: 30%;
   transform: translateY(-50%);
   font-size: 4rem;
   letter-spacing: 5px;
@@ -58,10 +58,11 @@ const InfoText = styled.h2`
   `;
 
 const SubText = styled.p`
+position: absolute;
+top: 35%;
   font-size: 2rem;
   text-align: center;
   @media (max-width: 768px) {
-    position: absolute;
     top: 35%;
     font-size: 1.5rem;
   }
@@ -69,7 +70,7 @@ const SubText = styled.p`
 
 const DotContainer = styled.div`
   position: absolute;
-  bottom: 30%;
+  bottom: 50%;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -81,8 +82,7 @@ const DotContainer = styled.div`
 
 const SearchContainer = styled.div`
   position: absolute;
-  // bottom: 1rem;
-  bottom: 10%;
+  bottom: 2%;
   z-index: 10;
   width: 100%;
   display: flex;
