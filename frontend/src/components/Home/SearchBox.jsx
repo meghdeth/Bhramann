@@ -12,8 +12,8 @@ const SearchContainer = styled.div`
   display: flex;
   align-items: center;
   background-color: white;
-  padding: 3rem 4rem;
-  border-radius: 0 20px 20px;
+  padding: 2rem 3rem;
+  border-radius: 0 12px 12px;
   box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.3);
   width: 900px;
   margin: 0 auto;
@@ -101,9 +101,9 @@ export default function SearchBox() {
   };
 
   return (
-    <SearchContainer>
+    <SearchContainer className={`${activeTab === 'Flights' ? "bottom-18 md:bottom-0" : ''}`}>
       {/* Tabs */}
-      <div className="absolute -top-16 left-0 flex bg-black text-white rounded-t overflow-hidden">
+      <div className="absolute -top-16 left-0 flex bg-black text-white rounded-t-xl overflow-hidden">
         {["Flights", "Hostels", "Buses"].map((tab) => {
           const Icon = tab === "Flights" ? Plane : tab === "Hostels" ? Hotel : Bus;
 

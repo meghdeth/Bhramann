@@ -88,7 +88,7 @@ const SearchContainer = styled.div`
   display: flex;
 
   @media (max-width: 768px) {
-    bottom: 20%;
+    bottom: 15%;
     transform: translateY(50%);
     padding: 0 20px;
   }
