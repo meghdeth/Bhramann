@@ -86,9 +86,9 @@ export default function SearchBox() {
     }
 
     if (activeTab === "Hostels") {
-      const { destination, date } = hostelValues;
-      if (!destination || !date) return alert("Please complete all fields.");
-      navigate(`/hostels/search?destination=${destination}&date=${date.toISOString().split("T")[0]}`);
+      const { destination, checkIn, checkOut } = hostelValues;
+      if (!destination || !checkIn || !checkOut) return alert("Please complete all fields.");
+      navigate(`/hostels/search?destination=${destination}&checkIn=${checkIn.toISOString().split("T")[0]}&checkOut=${checkOut.toISOString().split("T")[0]}`);
     }
 
     if (activeTab === "Buses") {
@@ -126,7 +126,7 @@ export default function SearchBox() {
 
       <div className="flex flex-col w-full gap-4">
         {renderFields()}
-        <button onClick={handleSearch} className="primary-btn mt-4">
+        <button type="submit" onClick={handleSearch} className="primary-btn mt-4">
           Search
         </button>
       </div>

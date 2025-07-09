@@ -33,6 +33,9 @@ const PackageDetail = lazy(() => import("./pages/PackageDetail"));
 const CompletedTrips = lazy(() => import("./components/Dashboard/UserDashboard/CompletedTrips"));
 const UpcomingTrips = lazy(() => import("./components/Dashboard/UserDashboard/UpcomingTrips"));
 const ResetPassword = lazy(() => import("./pages/Auth/ResetPassword"));
+const FlightsSearchResults = lazy(() => import("./pages/FlightsSearchResults"));
+const HostelsSearchResults = lazy(() => import("./pages/HostelsSearchResults"));
+const BusesSearchResults = lazy(() => import("./pages/BusesSearchResults"));
 
 // PrivateRoute component
 function PrivateRoute({ children }) {
@@ -59,6 +62,9 @@ function App() {
               <Route path="tour-package/:id" element={<PackageDetail />} />
               <Route path="cart" element={<MyCart />} />
             </Route>
+            <Route path="flights/search" element={<FlightsSearchResults />} />
+            <Route path="hostels/search" element={<HostelsSearchResults />} />
+            <Route path="buses/search" element={<BusesSearchResults />} />
             <Route path="login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="signup" element={<PublicRoute><Signup /></PublicRoute>} />
             <Route path="verify-email" element={<VerifyEmail />} />
