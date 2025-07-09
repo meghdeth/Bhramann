@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import { Menu, ShoppingCart, X } from 'lucide-react';
+import { ChevronDown, Menu, ShoppingCart, X } from 'lucide-react';
 import api from '../../api';
 import { getUser, clearAuth } from '../../auth';
 
@@ -186,11 +186,11 @@ export default function Navbar({ isScrolled, isHomePage }) {
 
         {isHomePage && (
           <NavLinks>
-            <NavLink onClick={() => document.getElementById('pageTop')?.scrollIntoView({ behavior: 'smooth' })}>HOME</NavLink>
-            <NavLink onClick={() => document.getElementById('topDestinations')?.scrollIntoView({ behavior: 'smooth' })}>EXPLORE</NavLink>
-            <NavLink onClick={() => document.getElementById('popularPackages')?.scrollIntoView({ behavior: 'smooth' })}>PACKAGES</NavLink>
-            <NavLink onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}>REVIEW</NavLink>
-            <NavLink onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}>CONTACT</NavLink>
+            <NavLink onClick={() => document.getElementById('pageTop')?.scrollIntoView({ behavior: 'smooth' })} className='flex'>Travel <ChevronDown/></NavLink>
+            <NavLink onClick={() => document.getElementById('topDestinations')?.scrollIntoView({ behavior: 'smooth' })}>Explore</NavLink>
+            <NavLink onClick={() => document.getElementById('popularPackages')?.scrollIntoView({ behavior: 'smooth' })}>Coupons & Deals</NavLink>
+            <NavLink onClick={() => document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth' })}>Become an Agent</NavLink>
+            <NavLink onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })}>Contact</NavLink>
           </NavLinks>
         )}
 
