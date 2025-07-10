@@ -13,6 +13,18 @@ export default function VerifyEmail() {
   const [resetloading, setResetLoading] = useState(false);
   const [otp, setOtp] = useState('');
   const [resendMsg, setResendMsg] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [canResend, setCanResend] = useState(true);
+
+  useEffect(() => {
+    let timer;
+    if (!canResend && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    } else if (timeLeft === 0) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [timeLeft, canResend]);
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
@@ -38,6 +50,8 @@ export default function VerifyEmail() {
       if (!userId) throw new Error('Missing user ID for resend.');
       const { data } = await resendOtp(userId);
       setResendMsg(data.message || 'OTP resent to your email.');
+      setTimeLeft(30);
+      setCanResend(false);
     } catch (err) {
       setError(err.response?.data?.message || err.message || 'Failed to resend OTP');
     } finally {
@@ -84,11 +98,16 @@ export default function VerifyEmail() {
       <button
         type="button"
         onClick={handleResendOtp}
-        disabled={resetloading || !userId}
+        disabled={resetloading || !userId || !canResend}
         className="w-full mt-4 bg-gray-200 text-gray-700 text-[1.4rem] py-3 rounded-xl hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {resetloading ? 'Resending' : 'Resend OTP'}
       </button>
+      {!canResend && (
+        <div className="mt-2 text-gray-500 text-center text-[1.2rem]">
+          Resend code in {timeLeft}s
+        </div>
+      )}
 
     </AuthLayout>
   );

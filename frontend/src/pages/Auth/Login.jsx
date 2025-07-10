@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import AuthLayout from './AuthLayout';
 import api from '../../api';            // ← axios instance
@@ -18,6 +18,18 @@ export default function Login() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotMsg, setForgotMsg] = useState('');
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [canResend, setCanResend] = useState(true);
+
+  useEffect(() => {
+    let timer;
+    if (!canResend && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+    } else if (timeLeft === 0) {
+      setCanResend(true);
+    }
+    return () => clearTimeout(timer);
+  }, [timeLeft, canResend]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -53,6 +65,8 @@ export default function Login() {
     try {
       const { data } = await api.post('/api/auth/forgot-password', { email: forgotEmail });
       setForgotMsg(data.message || 'If the email you entered is registered, you will receive a password reset link shortly. Please check your inbox and spam folder.');
+      setTimeLeft(30);
+      setCanResend(false);
     } catch (err) {
       setForgotMsg(err.response?.data?.message || 'Failed to send reset email.');
     } finally {
@@ -92,11 +106,16 @@ export default function Login() {
           </div>
           <button
             type="submit"
-            disabled={loading}
-            className={`w-full bg-[#0297CF] !text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'}`}
+            disabled={loading || !canResend}
+            className={`w-full bg-[#0297CF] !text-white text-[1.6rem] py-4 rounded-xl transform transition duration-300 ${loading || !canResend ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#0297CF]/90'}`}
           >
             {forgotLoading ? 'Sending…' : 'Send Reset Link'}
           </button>
+          {!canResend && (
+            <div className="mt-2 text-gray-500 text-center text-[1.2rem]">
+              Resend link in {timeLeft}s
+            </div>
+          )}
           <p className="mt-4 text-gray-500 text-[1.3rem] text-center">
           </p>
 

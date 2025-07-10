@@ -23,6 +23,8 @@ export default function Settings() {
   const [profileMsg, setProfileMsg] = useState("");
   const [passwordMsg, setPasswordMsg] = useState("");
   const [otpRequested, setOtpRequested] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [canResend, setCanResend] = useState(true);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -60,6 +62,15 @@ export default function Settings() {
     }
   };
 
+  useEffect(() => {
+    if (!canResend && timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (timeLeft === 0) {
+      setCanResend(true);
+    }
+  }, [timeLeft, canResend]);
+
   // Handler for requesting OTP
   const handleRequestOTP = async (e) => {
     e.preventDefault();
@@ -74,12 +85,15 @@ export default function Settings() {
       await requestPasswordChangeOTP({ current: passwords.current });
       setOtpRequested(true);
       setPasswordMsg("OTP sent to your email. Please check your inbox.");
-      setotpLoading(false);
+      setTimeLeft(30); 
+      setCanResend(false);
     } catch (err) {
       setPasswordMsg(err.response?.data?.message || "Failed to send OTP");
+    } finally {
       setotpLoading(false);
     }
   };
+  
 
   // Handler for password update
   const handlePasswordUpdate = async (e) => {
@@ -263,14 +277,25 @@ export default function Settings() {
                 )}
               </button>
             </div>
+            {canResend ? (
+              <button
+                type="submit"
+                disabled={!passwords.current || otploading}
+                className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 !text-white font-semibold py-2 px-4 text-sm rounded-lg transition-colors duration-200"
+              >
+                {otploading ? "Requesting..." : "Request OTP"}
+              </button>
+            ) : (
+              <div className="mt-6">
+                <p className="text-gray-600 text-lg mb-2">
+                  Didn't receive the code?
+                </p>
+                <p className="text-gray-500 text-2xl">
+                  Resend code in {timeLeft}s
+                </p>
+              </div>
+            )}
 
-            <button
-              type="submit"
-              disabled={!passwords.current || otploading}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 !text-white font-semibold py-2 px-4 text-sm rounded-lg transition-colors duration-200"
-            >
-              {otploading ? "Requesting..." : "Request OTP"}
-            </button>
           </div>
         </form>
 
