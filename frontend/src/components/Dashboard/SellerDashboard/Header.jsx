@@ -1,6 +1,7 @@
 import React from 'react';
 import { Bell, MessageSquare, User, ChevronDown, Menu, User2 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import Logo from '../../Logo';
 
 export default function Header({onClose}) {
   const location = useLocation();
@@ -16,7 +17,7 @@ export default function Header({onClose}) {
         <div className="flex items-center space-x-4 z-[999]">
           <div className="flex items-center space-x-3">
             <div>
-              <a href='/' className="text-4xl font-semibold text-slate-800 tracking-tight">Bhramann</a>
+              <Logo className="!text-4xl" />
               <p className="text-2xl text-slate-500 font-medium">{isUser ? "User Dashboard" : "Seller Dashboard"}</p>
             </div>
           </div>

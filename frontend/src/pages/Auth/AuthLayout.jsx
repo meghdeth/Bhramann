@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Logo from '../../components/Logo';
 
 function AuthLayout({ 
   children, 
@@ -12,9 +13,7 @@ function AuthLayout({
 }) {
   return (
     <div className="relative min-h-screen w-full md:flex flex-row">
-      <Link to={"/"} className='absolute top-5 left-15 z-15 text-black md:!text-white text-3xl'>
-        Bhramann
-      </Link>
+      <Logo className='absolute top-5 left-15 z-15 text-black md:!text-white text-3xl' />
       {/* Left Side - Image */}
       <div 
         className="hidden md:block md:w-1/2 md:h-screen bg-cover bg-center relative w-full h-[30vh]"

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { FiUser } from "react-icons/fi";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
+import Logo from '../../components/Logo';
 
 const AdminContainer = styled.div`
   display: flex;
@@ -20,19 +21,6 @@ const Header = styled.header`
 
   @media (max-width: 768px) {
     padding: 1.5rem 2rem;
-  }
-`;
-
-const Logo = styled(NavLink)`
-  color: white;
-  font-size: 3rem;
-  /* font-weight: bold; */
-  letter-spacing: 4px;
-  font-family: "Franklin-Gothic-Demi-Cond";
-
-  @media (max-width: 768px) {
-    font-size: 2.2rem;
-    letter-spacing: 2px;
   }
 `;
 
@@ -126,7 +114,7 @@ function AdminLayout() {
   return (
     <AdminContainer>
       <Header>
-        <Logo to="/superadmin-panel">Super-Admin</Logo>
+        <Logo />
         <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
           {isMenuOpen ? <FiX /> : <FiMenu />}
         </MenuButton>
