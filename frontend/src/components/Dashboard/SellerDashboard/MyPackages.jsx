@@ -66,7 +66,7 @@ export default function MyPackages() {
   useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const { data } = await api.get("/api/packages");
+        const { data } = await api.get("/api/packages/my-packages");
         setPackages(data);
       } catch (err) {
         console.error("Failed to load packages:", err);

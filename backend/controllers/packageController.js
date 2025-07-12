@@ -20,15 +20,44 @@ export const createPackage = asyncHandler(async (req, res) => {
   res.status(201).json(pkg);
 });
 
-// @desc    Get all packages
+// @desc    Get all packages (for browsing - public)
 // @route   GET /api/packages
 // @access  Public
-export const getPackages = asyncHandler(async (req, res) => {
+export const getAllPackages = asyncHandler(async (req, res) => {
+  const { location, category, minPrice, maxPrice, status = 'active' } = req.query;
+  const filter = { status: 'active' };
+  
+  if (location) {
+    filter.location = { $regex: location, $options: 'i' };
+  }
+  if (category) {
+    filter.category = category;
+  }
+  if (minPrice || maxPrice) {
+    filter['priceRanges.price'] = {};
+    if (minPrice) filter['priceRanges.price'].$gte = Number(minPrice);
+    if (maxPrice) filter['priceRanges.price'].$lte = Number(maxPrice);
+  }
 
+  const pkgs = await Package.find(filter)
+    .populate('createdBy', 'name email') // Include seller info
+    .sort({ createdAt: -1 })
+    .lean();
+    
+  res.json(pkgs);
+});
+
+// @desc    Get packages created by authenticated user (seller dashboard)
+// @route   GET /api/packages/my-packages
+// @access  Private (seller)
+export const getMyPackages = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 
-  // Only fetch packages created by this user
-  const pkgs = await Package.find({ createdBy: userId }).sort({ updatedAt: -1 }).lean();
+  // Only fetch packages created by this user (both active and inactive)
+  const pkgs = await Package.find({ createdBy: userId })
+    .sort({ updatedAt: -1 })
+    .lean();
+    
   res.json(pkgs);
 });
 
@@ -36,11 +65,19 @@ export const getPackages = asyncHandler(async (req, res) => {
 // @route   GET /api/packages/:id
 // @access  Public
 export const getPackageById = asyncHandler(async (req, res) => {
-  const pkg = await Package.findById(req.params.id);
+  const pkg = await Package.findById(req.params.id)
+    .populate('createdBy', 'name email phone'); // Include seller info
+    
   if (!pkg) {
     res.status(404);
     throw new Error('Package not found');
   }
+  
+  if (pkg.status !== 'active') {
+    res.status(404);
+    throw new Error('Package not found');
+  }
+  
   res.json(pkg);
 });
 

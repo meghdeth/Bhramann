@@ -151,18 +151,9 @@ const Overlay = styled.div`
 // Main component
 export default function Navbar({ isScrolled, isHomePage }) {
   const [user, setUser] = useState(getUser());
-  const [orders, setOrders] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  // Load orders when we have a user
-  useEffect(() => {
-    if (!user) return;
-    api
-      .get('/api/orders/my-orders')
-      .then(res => setOrders(res.data))
-      .catch(err => console.error('Failed to load orders:', err));
-  }, [user]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -170,7 +161,6 @@ export default function Navbar({ isScrolled, isHomePage }) {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  const tripCount = orders.length;
 
   const handleLogout = () => {
     clearAuth();
@@ -197,11 +187,9 @@ export default function Navbar({ isScrolled, isHomePage }) {
         <div className="flex items-center gap-4">
           <Link to="/cart" className="relative group">
             <ShoppingCart className="size-10 text-white" />
-            {tripCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm">
-                {tripCount}
+                1
               </span>
-            )}
           </Link>
 
           {user ? (

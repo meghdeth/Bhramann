@@ -28,7 +28,7 @@ export default function SellerHome() {
 
   // Fetch packages from API on mount
   useEffect(() => {
-    api.get("/api/packages")
+    api.get("/api/packages/my-packages")
       .then((res) => {
         setPackages(res.data);
       })
