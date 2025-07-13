@@ -1,5 +1,19 @@
 import asyncHandler from 'express-async-handler';
 import Package from '../models/Package.js';
+import { bucket } from '../config/gcs.js';
+import { v4 as uuidv4 } from 'uuid';
+
+// Helper to upload a Base64 image to GCS
+async function uploadBase64ToGCS(base64String, folder = '') {
+  const matches = base64String.match(/^data:(.+);base64,(.+)$/);
+  if (!matches) throw new Error('Invalid base64 string');
+  const contentType = matches[1];
+  const buffer = Buffer.from(matches[2], 'base64');
+  const filename = `${folder}${folder ? '/' : ''}${uuidv4()}`;
+  const file = bucket.file(filename);
+  await file.save(buffer, { contentType, resumable: false });
+  return `https://storage.googleapis.com/${bucket.name}/${filename}`;
+}
 
 // @desc    Create a new package
 // @route   POST /api/packages
@@ -16,7 +30,57 @@ export const createPackage = asyncHandler(async (req, res) => {
     data.specificDates = data.specificDates.map(d => new Date(d));
   }
 
-  const pkg = await Package.create(data);
+  // Remove images from data for initial save
+  const mainPhotos = data.mainPhotos;
+  const highlights = data.highlights;
+  const stays = data.stays;
+  delete data.mainPhotos;
+  delete data.highlights;
+  delete data.stays;
+
+  // First, try to create the package (without images)
+  let pkg = await Package.create(data);
+
+  // Now upload images and update the package
+  const update = {};
+
+  // Upload mainPhotos (array of base64 or URLs)
+  if (Array.isArray(mainPhotos)) {
+    update.mainPhotos = await Promise.all(mainPhotos.map(async (img) => {
+      if (img.startsWith('data:')) {
+        return await uploadBase64ToGCS(img, 'mainPhotos');
+      }
+      return img;
+    }));
+  }
+
+  // Upload highlight images
+  if (Array.isArray(highlights)) {
+    update.highlights = await Promise.all(highlights.map(async (hl) => {
+      if (hl.image && hl.image.startsWith('data:')) {
+        hl.image = await uploadBase64ToGCS(hl.image, 'highlights');
+      }
+      return hl;
+    }));
+  }
+
+  // Upload stay images
+  if (Array.isArray(stays)) {
+    update.stays = await Promise.all(stays.map(async (stay) => {
+      if (Array.isArray(stay.images)) {
+        stay.images = await Promise.all(stay.images.map(async (img) => {
+          if (img.startsWith('data:')) {
+            return await uploadBase64ToGCS(img, 'stays');
+          }
+          return img;
+        }));
+      }
+      return stay;
+    }));
+  }
+
+  // Update the package with image URLs
+  pkg = await Package.findByIdAndUpdate(pkg._id, update, { new: true });
   res.status(201).json(pkg);
 });
 
@@ -105,6 +169,39 @@ export const updatePackage = asyncHandler(async (req, res) => {
     data.specificDates = data.specificDates.map(d => new Date(d));
   }
 
+  // Handle image uploads for updates
+  if (Array.isArray(data.mainPhotos)) {
+    data.mainPhotos = await Promise.all(data.mainPhotos.map(async (img) => {
+      if (img && typeof img === 'string' && img.startsWith('data:')) {
+        return await uploadBase64ToGCS(img, 'mainPhotos');
+      }
+      return img;
+    }));
+  }
+
+  if (Array.isArray(data.highlights)) {
+    data.highlights = await Promise.all(data.highlights.map(async (hl) => {
+      if (hl.image && typeof hl.image === 'string' && hl.image.startsWith('data:')) {
+        hl.image = await uploadBase64ToGCS(hl.image, 'highlights');
+      }
+      return hl;
+    }));
+  }
+
+  if (Array.isArray(data.stays)) {
+    data.stays = await Promise.all(data.stays.map(async (stay) => {
+      if (Array.isArray(stay.images)) {
+        stay.images = await Promise.all(stay.images.map(async (img) => {
+          if (img && typeof img === 'string' && img.startsWith('data:')) {
+            return await uploadBase64ToGCS(img, 'stays');
+          }
+          return img;
+        }));
+      }
+      return stay;
+    }));
+  }
+
   const updated = await Package.findByIdAndUpdate(req.params.id, data, {
     new: true,
     runValidators: true
@@ -123,6 +220,24 @@ export const deletePackage = asyncHandler(async (req, res) => {
     res.status(403);
     throw new Error('Not authorized to delete this package');
   }
+
+  // Collect all image URLs
+  const imageUrls = [
+    ...(pkg.mainPhotos || []),
+    ...(pkg.highlights?.map(h => h.image).filter(Boolean) || []),
+    ...(pkg.stays?.flatMap(s => s.images || []) || [])
+  ];
+
+  // Extract GCS object names from URLs
+  const bucketUrlPrefix = `https://storage.googleapis.com/${bucket.name}/`;
+  const objectNames = imageUrls
+    .filter(url => url && url.startsWith(bucketUrlPrefix))
+    .map(url => url.slice(bucketUrlPrefix.length));
+
+  // Delete images from GCS
+  await Promise.all(
+    objectNames.map(name => bucket.file(name).delete().catch(() => {}))
+  );
 
   await pkg.remove();
   res.json({ message: 'Package removed' });
