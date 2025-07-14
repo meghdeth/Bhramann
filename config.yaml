@@ -16,4 +16,4 @@ steps:
 # making it a live website. The '-m' flag performs a parallel copy for speed,
 # and 'rsync' efficiently syncs only the changed files.
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['-m', 'rsync', '-r', 'frontend/build', 'gs://your-frontend-bucket-name'] # <-- CHANGE THIS
+  args: ['-m', 'rsync', '-r', 'frontend/build', 'gs://bhramannfrontend'] # <-- CHANGE THIS
