@@ -172,7 +172,7 @@ function Footer() {
 
       {/* Second Row */}
       <SecondRow>
-        <CopyrightText>© 2025 Bhramann Loop Pvt. Ltd.</CopyrightText>
+        <CopyrightText>© 2025 Bhramann Hive Pvt. Ltd.</CopyrightText>
         
       </SecondRow>
     </FooterContainer>

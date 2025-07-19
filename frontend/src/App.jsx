@@ -58,7 +58,7 @@ function App() {
             <Route path="/" element={<Applayout />}>
               <Route index element={<Home />} />
               <Route path="reviews" element={<Reviews />} />
-              <Route path="tour-packages" element={<TourPackages />} />
+              <Route path="tour-packages/search" element={<TourPackages />} />
               <Route path="tour-package/:id" element={<PackageDetail />} />
               <Route path="cart" element={<MyCart />} />
             </Route>

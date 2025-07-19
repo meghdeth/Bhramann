@@ -1,101 +1,62 @@
-import React, { useMemo } from 'react';
-import { Star, Heart, MapPin, Clock } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Star, Heart, MapPin, Calendar, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const packages = [
-  {
-    id: 1,
-    name: 'Bali Paradise Package',
-    duration: '7 Days - 6 Nights',
-    durationCategory: '4-7 Days',
-    location: 'Bali, Indonesia',
-    category: 'Beach',
-    ratings: 4.8,
-    reviews: 1250,
-    price: 899,
-    image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4',
-    amenities: ['Wi-Fi', 'Pool', 'Spa', 'Restaurant'],
-    description: 'Experience the beauty of Bali with our most popular package. Includes luxury accommodations, cultural tours, and beach activities.'
-  },
-  {
-    id: 2,
-    name: 'Swiss Alps Adventure',
-    duration: '5 Days - 4 Nights',
-    durationCategory: '4-7 Days',
-    location: 'Switzerland',
-    category: 'Mountain',
-    ratings: 4.9,
-    reviews: 850,
-    price: 1299,
-    image: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a',
-    amenities: ['Wi-Fi', 'Restaurant', 'Airport Transfer'],
-    description: 'Discover the majestic Swiss Alps with guided hiking tours, scenic train rides, and comfortable mountain lodges.'
-  },
-  {
-    id: 3,
-    name: 'Santorini Getaway',
-    duration: '6 Days - 5 Nights',
-    durationCategory: '4-7 Days',
-    location: 'Greece',
-    category: 'Cultural',
-    ratings: 4.7,
-    reviews: 920,
-    price: 999,
-    image: 'https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff',
-    amenities: ['Pool', 'Spa', 'Restaurant', 'Airport Transfer'],
-    description: 'Experience the magic of Santorini with stunning caldera views, wine tasting, and traditional Greek experiences.'
-  },
-  {
-    id: 4,
-    name: 'Tokyo Explorer',
-    duration: '2 Days - 1 Night',
-    durationCategory: '1-3 Days',
-    location: 'Japan',
-    category: 'City Break',
-    ratings: 4.6,
-    reviews: 750,
-    price: 499,
-    image: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26',
-    amenities: ['Wi-Fi', 'Restaurant', 'Airport Transfer'],
-    description: 'A quick urban adventure in the heart of Tokyo, perfect for those wanting to experience Japanese culture.'
-  },
-  {
-    id: 5,
-    name: 'Safari Adventure',
-    duration: '10 Days - 9 Nights',
-    durationCategory: '8-14 Days',
-    location: 'Kenya',
-    category: 'Wildlife',
-    ratings: 4.9,
-    reviews: 420,
-    price: 2999,
-    image: 'https://images.unsplash.com/photo-1516426122078-c23e76319801',
-    amenities: ['Pool', 'Restaurant', 'Fitness Center', 'Airport Transfer'],
-    description: 'An unforgettable wildlife experience in the African savanna with luxury lodge accommodations.'
-  }
-];
+import api from '../../api';
 
 export default function Packages({ filters, sortBy }) {
-  const filteredAndSortedPackages = useMemo(() => {
-    let result = packages.filter(pkg => {
-      const meetsPrice = pkg.price >= filters.priceRange[0] && pkg.price <= filters.priceRange[1];
-      const meetsRating = filters.rating === 0 || pkg.ratings >= filters.rating;
-      const meetsCategories = filters.categories.length === 0 || filters.categories.includes(pkg.category);
-      const meetsDuration = filters.duration.length === 0 || filters.duration.includes(pkg.durationCategory);
-      const meetsAmenities = filters.amenities.length === 0 || filters.amenities.every(amenity => pkg.amenities.includes(amenity));
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-      return meetsPrice && meetsRating && meetsCategories && meetsDuration && meetsAmenities;
-    });
+  useEffect(() => {
+    const fetchPackages = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {};
+        if (filters.priceRange) {
+          params.minPrice = filters.priceRange[0];
+          params.maxPrice = filters.priceRange[1];
+        }
+        if (filters.categories && filters.categories.length > 0) {
+          params.category = filters.categories[0];
+        }
+        if (filters.destination && filters.destination.length > 0) {
+          params.destination = filters.location[0];
+        }
+        if (filters.location) {
+          params.location = filters.location;
+        }
+        // Do not send rating, duration, amenities, or sortBy
 
-    switch (sortBy) {
-      case 'price-asc': return [...result].sort((a, b) => a.price - b.price);
-      case 'price-desc': return [...result].sort((a, b) => b.price - a.price);
-      case 'rating-desc': return [...result].sort((a, b) => b.ratings - a.ratings);
-      default: return result;
-    }
+        const res = await api.get('/api/packages', { params });
+        setPackages(res.data.packages || res.data);
+      } catch (err) {
+        setError(err.response?.data?.message || 'Failed to fetch packages');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPackages();
   }, [filters, sortBy]);
 
-  if (filteredAndSortedPackages.length === 0) {
+  if (loading) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-2xl font-semibold text-gray-800 mb-2">Loading packages...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-2xl font-semibold text-red-600 mb-2">{error}</p>
+      </div>
+    );
+  }
+
+  if (!packages || packages.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-2xl font-semibold text-gray-800 mb-2">No packages found</p>
@@ -106,11 +67,11 @@ export default function Packages({ filters, sortBy }) {
 
   return (
     <div className="space-y-8">
-      {filteredAndSortedPackages.map((item) => (
-        <div key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+      {packages.map((item) => (
+        <div key={item._id || item.id} className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
           <div className="relative">
             <img
-              src={item.image}
+              src={item.mainPhotos && item.mainPhotos[0]}
               alt={item.name}
               className="w-full h-[25rem] object-cover"
               loading="lazy"
@@ -121,8 +82,8 @@ export default function Packages({ filters, sortBy }) {
             <button className="absolute bottom-4 right-4 px-6 py-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors z-20">
               <div className="flex items-center gap-2">
                 <Star className="size-6 text-yellow-400 fill-current" />
-                <span className="text-xl font-bold">{item.ratings}/5</span>
-                <span className="text-xl text-black/70">({item.reviews})</span>
+                <span className="text-xl font-bold">{item.rating || 0}/5</span>
+                <span className="text-xl text-black/70">{item.bookings ? `(${item.bookings} bookings)` : ''}</span>
               </div>
             </button>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -138,30 +99,97 @@ export default function Packages({ filters, sortBy }) {
           <div className="p-8">
             <p className="text-gray-600 mb-6 text-2xl">{item.description}</p>
 
-            <div className="flex flex-wrap gap-3 mb-8">
-              {item.amenities.map((amenity, index) => (
-                <span key={index} className="px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-xl">
-                  {amenity}
-                </span>
-              ))}
-            </div>
-
+            {/* Price display */}
             <div className="bg-gray-50 p-6 rounded-2xl mb-8">
               <div className="flex items-center gap-2 mb-2">
-                <Clock className="size-5" />
-                <span className="text-2xl">{item.duration}</span>
+                <Users className="size-5" />
+                <span className="text-2xl">{item.priceType === 'fixed' ? 'Fixed Price' : 'Variable Price'}</span>
               </div>
-              <p className="text-gray-600 text-lg mb-2">Price per Person</p>
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-bold text-gray-800">${item.price}</span>
-                <span className="text-gray-500">USD</span>
-              </div>
+              {item.priceType === 'fixed' && item.priceRanges && item.priceRanges[0] && (
+                <div className="flex items-end gap-2">
+                  <span className="text-4xl font-bold text-gray-800">₹{item.priceRanges[0].price}</span>
+                </div>
+              )}
+              {item.priceType === 'variable' && item.priceRanges && item.priceRanges.length > 0 && (
+                <div className="grid grid-cols-5 gap-1">
+                  {item.priceRanges.map((range, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 border rounded-lg border-blue-500 bg-blue-50">
+                      <span className="text-lg">{range.from} - {range.to} people:</span>
+                      <span className="text-2xl font-bold text-gray-800">₹{range.price}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
+            {/* Available Dates */}
+            {(item.availableDates?.start || item.specificDates?.length > 0) && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Calendar className="size-5" />
+                  <span className="text-xl font-semibold">Available Dates:</span>
+                </div>
+                {item.availableDates?.start && item.availableDates?.end && (
+                  <div className="text-lg text-gray-700 ml-7">
+                    {new Date(item.availableDates.start).toLocaleDateString()} - {new Date(item.availableDates.end).toLocaleDateString()}
+                  </div>
+                )}
+                {item.specificDates && item.specificDates.length > 0 && (
+                  <div className="text-lg text-gray-700 ml-7">
+                    {item.specificDates.map((d, i) => (
+                      <span key={i}>{new Date(d).toLocaleDateString()}{i < item.specificDates.length - 1 ? ', ' : ''}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Highlights */}
+            {item.highlights && item.highlights.length > 0 && (
+              <div className="mb-6">
+                <div className="text-xl font-semibold mb-2">Highlights:</div>
+                <ul className="list-disc ml-7">
+                  {item.highlights.map((hl) => (
+                    <li key={hl.id} className="mb-1 flex items-center gap-2">
+                      <span>{hl.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Inclusions */}
+            {item.inclusions && item.inclusions.length > 0 && (
+              <div className="mb-6">
+                <div className="text-xl font-semibold mb-2">Inclusions:</div>
+                <ul className="list-disc ml-7">
+                  {item.inclusions.map((inc) => (
+                    <li key={inc.id} className="mb-1">
+                      <span className="font-bold">{inc.title}:</span> {inc.details && inc.details.join(', ')}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Stays */}
+            {item.stays && item.stays.length > 0 && (
+              <div className="mb-6">
+                <div className="text-xl font-semibold mb-2">Stays:</div>
+                <ul className="list-disc ml-7">
+                  {item.stays.map((stay) => (
+                    <li key={stay.id} className="mb-1">
+                      <span className="font-bold">{stay.hotel}</span> - {stay.roomType} {stay.amenities && `| Amenities: ${stay.amenities.join(', ')}`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             <div className="flex justify-center gap-6">
-              <Link to={`/tour-package/${item.id}`}
-              className="w-full border-2 border-blue-500 !text-blue-500 hover:bg-blue-500/10 rounded-xl text-center py-2">
-                  View Details
+              <Link to={`/tour-package/${item._id || item.id}`}
+                className="w-full border-2 border-blue-500 !text-blue-500 hover:bg-blue-500/10 rounded-xl text-center py-2">
+                View Details
               </Link>
               <button className="w-full bg-blue-500 hover:bg-blue-600 !text-white rounded-xl py-3">
                 Add to cart

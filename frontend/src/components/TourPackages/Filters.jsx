@@ -86,14 +86,14 @@ function Filters({ showFilters, setShowFilters, filters, onFilterChange }) {
             <input
               type="range"
               min="0"
-              max="5000"
+              max="50000"
               value={tempFilters.priceRange[1]}
               onChange={(e) => handleFilterChange('priceRange', [0, parseInt(e.target.value)])}
               className="w-full"
             />
             <div className="flex items-center justify-between text-gray-600 text-xl">
-              <span>$0</span>
-              <span>Up to ${tempFilters.priceRange[1]}</span>
+              <span>₹0</span>
+              <span>Up to ₹{tempFilters.priceRange[1]}</span>
             </div>
           </div>
         </div>

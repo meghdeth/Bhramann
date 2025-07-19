@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { Plane, Hotel, Bus } from "lucide-react";
+import { Plane, Hotel, Bus, Package } from "lucide-react";
 
 import FlightSearch from "./searchTabs/FlightSearch";
 import HostelSearch from "./searchTabs/HostelSearch";
 import BusSearch from "./searchTabs/BusSearch";
+import PackageSearch from "./searchTabs/PackageSearch";
 
 const SearchContainer = styled.div`
   position: relative;
@@ -52,6 +53,12 @@ export default function SearchBox() {
     date: null,
   });
 
+  const [packageValues, setPackageValues] = useState({
+    from: "",
+    to: "",
+    date: null,
+  });
+
   const renderFields = () => {
     switch (activeTab) {
       case "Flights":
@@ -60,6 +67,8 @@ export default function SearchBox() {
         return <HostelSearch values={hostelValues} setValues={setHostelValues} />;
       case "Buses":
         return <BusSearch values={busValues} setValues={setBusValues} />;
+      case "Packages":
+        return <PackageSearch values={packageValues} setValues={setPackageValues} />;
       default:
         return null;
     }
@@ -98,14 +107,22 @@ export default function SearchBox() {
         `/buses/search?from=${from}&to=${to}&date=${date.toISOString().split("T")[0]}`
       );
     }
+
+    if (activeTab === "Packages") {
+      const { from, to, date } = packageValues;
+      if (!from || !to || !date) return alert("Please complete all fields.");
+      navigate(
+        `/tour-packages/search?from=${from}&to=${to}&date=${date.toISOString().split("T")[0]}`
+      );
+    }
   };
 
   return (
     <SearchContainer className={`${activeTab === 'Flights' ? "bottom-18 md:bottom-0" : ''}`}>
       {/* Tabs */}
       <div className="absolute -top-16 left-0 flex bg-black text-white rounded-t-xl overflow-hidden">
-        {["Flights", "Hostels", "Buses"].map((tab) => {
-          const Icon = tab === "Flights" ? Plane : tab === "Hostels" ? Hotel : Bus;
+        {["Flights", "Hostels", "Buses", "Packages"].map((tab) => {
+          const Icon = tab === "Flights" ? Plane : tab === "Hostels" ? Hotel : tab === "Packages" ? Package : Bus;
 
           return (
             <div
