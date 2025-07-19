@@ -10,14 +10,15 @@ function TourPackages() {
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('recommended');
   const [filters, setFilters] = useState({
-    priceRange: [0, 5000],
+    priceRange: [0, 50000],
     duration: [],
     rating: 0,
     categories: [],
     amenities: []
   });
 
-  const destination = searchParams.get("destination") || "";
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
   const date = searchParams.get("date") || "";
 
   const handleFilterChange = (newFilters) => {
@@ -27,7 +28,7 @@ function TourPackages() {
   return (
     <div className="min-h-screen pt-32 pb-20 bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-[1400px] mx-auto px-8 py-6 md:px-5">
-        <SearchBox destination={destination} date={date} />
+        <SearchBox from={from} to={to} date={date} />
       </div>
 
       <div className="max-w-[1400px] mx-auto px-8 md:px-4">
